@@ -1,15 +1,16 @@
 # SSH into EC2 Instance
 
-## Introduction
-
-Welcome to this comprehensive guide on how to SSH (Secure Shell) into an Amazon EC2 (Elastic Compute Cloud) instance. Whether you're new to cloud computing or an experienced user, this document will assist you in securely connecting to your EC2 instance from various operating systems. We'll go through the necessary steps for both Mac & Linux and Microsoft Windows users. This guide aims to provide clear, step-by-step instructions to make your experience smooth and hassle-free.
-
 ## Table of Contents
 
+- [Introduction](#introduction)
 - [SSH for Mac & Linux Users](#ssh-for-mac--linux-users)
 - [SSH for Microsoft Windows Users](#ssh-for-microsoft-windows-users)
 - [Conclusion](#conclusion)
 - [References](#references)
+
+## Introduction
+
+Welcome to this comprehensive guide on how to SSH (Secure Shell) into an Amazon EC2 (Elastic Compute Cloud) instance. Whether you're new to cloud computing or an experienced user, this document will assist you in securely connecting to your EC2 instance from various operating systems. We'll go through the necessary steps for both Mac & Linux and Microsoft Windows users. This guide aims to provide clear, step-by-step instructions to make your experience smooth and hassle-free.
 
 ## SSH for Mac & Linux Users
 
