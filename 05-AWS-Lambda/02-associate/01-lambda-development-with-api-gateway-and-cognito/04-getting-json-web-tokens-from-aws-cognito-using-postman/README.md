@@ -11,7 +11,7 @@ Welcome to this guide on acquiring JSON Web Tokens (JWTs) from AWS Cognito using
 - [Setting Up Authorization](#setting-up-authorization)
 - [Sending the Request and Receiving the JWT](#sending-the-request-and-receiving-the-jwt)
 - [Decoding and Understanding the JWT](#decoding-and-understanding-the-jwt)
-- [Examle](#example)
+- [Example](#example)
 - [Best Practices](#best-practices)
 - [Key Takeaways](#key-takeaways)
 - [Conclusion](#conclusion)
@@ -43,7 +43,7 @@ Here's a step-by-step guide to create a new collection named "Statistical Calcul
 
 To get a JWT token from AWS Cognito, you'll need to create a POST request. This request will be sent to the AWS Cognito endpoint configured for your application. 
 
-Example:
+**Example:**
 
 ```plaintext
 Method: POST
@@ -235,5 +235,5 @@ This guide has walked you through the process of obtaining JWT tokens from AWS C
 - [AWS Cognito Documentation](https://docs.aws.amazon.com/cognito/index.html)
 - [Token endpoint](https://docs.aws.amazon.com/cognito/latest/developerguide/token-endpoint.html)
 - [Postman Documentation](https://learning.postman.com/)
-- [JWT.io](https://jwt.io/)
 - [Introduction to JSON Web Tokens](https://jwt.io/introduction)
+- [JWT.io](https://jwt.io/)
