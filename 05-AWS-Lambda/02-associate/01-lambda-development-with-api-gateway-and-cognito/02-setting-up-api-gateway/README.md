@@ -8,7 +8,6 @@ Welcome to this comprehensive guide on setting up API Gateway! This document wil
 - [Getting Started with API Gateway](#getting-started-with-api-gateway)
 - [Testing the Invoke URL](#testing-the-invoke-url)
 - [Integrating Lambda Functions](#integrating-lambda-functions)
-- [Securing Your API with JWT Authentication](#securing-your-api-with-jwt-authentication)
 - [Best Practices](#best-practices)
 - [Key Takeaways](#key-takeaways)
 - [Conclusion](#conclusion)
