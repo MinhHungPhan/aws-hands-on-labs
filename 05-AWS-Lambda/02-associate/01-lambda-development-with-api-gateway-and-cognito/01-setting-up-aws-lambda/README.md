@@ -87,6 +87,14 @@ Example Test Event (JSON):
 
 3. **Review Results**: After the test execution, AWS Lambda displays the results, including the returned output and log output. Ensure the output matches your expectations (e.g., the factorial of 6 should be 720).
 
+Expected output:
+
+```json
+{
+    "factorial": 720
+}
+```
+
 ## Conclusion
 
 Great work on setting up your AWS Lambda function! You've taken a vital step in learning to deploy scalable, serverless applications. This tutorial laid the groundwork for future lessons, including securing your functions with AWS Cognito. Keep experimenting with Lambda, and look forward to expanding your cloud computing skills in our next guide.
