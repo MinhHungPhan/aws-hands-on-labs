@@ -27,7 +27,7 @@ API Gateway is a fully managed service that makes it easier for developers to cr
 
 3. **API Configuration**: 
 
-- **API Name**: Provide a meaningful name that reflects the API's purpose, such as `StatisticsCalculationsAPI`.
+- **API Name**: Provide a meaningful name that reflects the API's purpose, such as `FactorialCalculationsAPI`.
 - **Protocol**: Choose HTTP or REST, depending on your selection earlier.
 - **Endpoint Type**: Select the visibility of the API endpoint, typically `Regional`, `Edge-optimized` (for REST APIs), or `Private`.
 - **Description**: Optionally, add a description to document the API's functionality.
@@ -100,7 +100,7 @@ This response indicates that the API Gateway received your request but didn't fi
 
 After creating your API, the next step is to integrate it with Lambda functions. Integrating AWS Lambda functions with API Gateway enables you to create dynamic, serverless APIs quickly. This integration allows your API to execute code in response to HTTP requests without managing infrastructure.
 
-In this detailed guide, we'll walk through creating a route in API Gateway, attaching a Lambda function to that route, and testing the integration. We’ll use a Lambda function (`statisticalCalculation`) that calculates a factorial, as created in a previous tutorial.
+In this detailed guide, we'll walk through creating a route in API Gateway, attaching a Lambda function to that route, and testing the integration. We’ll use a Lambda function (`factorialCalculation`) that calculates a factorial, as created in a previous tutorial.
 
 ### Step 1: Create a Route for API
 
@@ -122,7 +122,7 @@ Once you've established a route, the next step is to define what happens when a 
 
 - **Integration Type**: Choose "Lambda Function".
 - **AWS Region**: Select the region where your Lambda function resides. For this guide, we’re using `eu-west-3`.
-- **Lambda Function**: Use the picker to select your previously created Lambda function, named `statisticalCalculation`.
+- **Lambda Function**: Use the picker to select your previously created Lambda function, named `factorialCalculation`.
 
 2. **Invoke Permissions**:
 
@@ -142,7 +142,7 @@ curl -X GET <Your-Invoke-URL>
 
 3. **Expected Result**:
    
-- The response should be a JSON object representing the output of your Lambda function. Given the `statisticalCalculation` function's logic, you might see something like:
+- The response should be a JSON object representing the output of your Lambda function. Given the `factorialCalculation` function's logic, you might see something like:
 
 ```json
 {"factorial": 720}
@@ -169,5 +169,4 @@ Setting up API Gateway is a pivotal step in developing scalable and secure appli
 ## References
 
 - [AWS API Gateway Documentation](https://docs.aws.amazon.com/apigateway/latest/developerguide/welcome.html)
-- [Amazon Cognito Documentation](https://docs.aws.amazon.com/cognito/latest/developerguide/what-is-amazon-cognito.html)
 - [AWS Lambda Documentation](https://docs.aws.amazon.com/lambda/latest/dg/welcome.html)
