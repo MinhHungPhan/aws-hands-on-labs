@@ -1,0 +1,78 @@
+{
+	"info": {
+		"_postman_id": "89fa17c5-9a2b-4db5-972d-258eb98d433a",
+		"name": "Factorial Calculation API (Cognito)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "33183921"
+	},
+	"item": [
+		{
+			"name": "Get JWT from Cognito",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "grant_type",
+							"value": "client_credentials",
+							"type": "text"
+						},
+						{
+							"key": "client_id",
+							"value": "1example23456789",
+							"type": "text"
+						},
+						{
+							"key": "scope",
+							"value": "MyResourceServerId/StatCalculationsScope",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "https://p2p.auth.eu-west-3.amazoncognito.com/oauth2/token",
+					"protocol": "https",
+					"host": [
+						"p2p",
+						"auth",
+						"eu-west-3",
+						"amazoncognito",
+						"com"
+					],
+					"path": [
+						"oauth2",
+						"token"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Factorial Information",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer <JWT>",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://9vmjo6cp6d.execute-api.eu-west-3.amazonaws.com",
+					"protocol": "https",
+					"host": [
+						"9vmjo6cp6d",
+						"execute-api",
+						"eu-west-3",
+						"amazonaws",
+						"com"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
