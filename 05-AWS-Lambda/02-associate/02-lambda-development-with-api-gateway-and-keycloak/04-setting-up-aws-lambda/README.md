@@ -33,7 +33,7 @@ To get started with AWS Lambda, which will act as the backend for your applicati
 2. **Create Your Function**: Click on "Create function" and choose "Author from scratch."
 3. **Function Details**: Assign a name to your function and select the runtime environment. For our purposes, we will use `Python 3.11`.
 4. **Execution Role and Permissions**: Define the necessary execution role and permissions for your Lambda function. This role should have policies that allow it to execute Lambda functions and access any other AWS services your function might need.
-5. **Function Code**: Replace the factorial example with the Fibonacci sequence code. Here, we provide an updated example that calculates the Fibonacci sequence up to a given number. The number is extracted from the `event` object passed to your Lambda handler.
+5. **Function Code**: Replace the existing code with the Fibonacci sequence code. Here, we provide an example that calculates the Fibonacci sequence up to a given number. The number is extracted from the `event` object passed to your Lambda handler.
 
 ```python
 import json
