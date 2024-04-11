@@ -1,0 +1,94 @@
+{
+	"info": {
+		"_postman_id": "40c9bfa7-dd30-4dd1-aa33-30844ea7752e",
+		"name": "Fibonacci Calculation API (Keycloak)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "33183921"
+	},
+	"item": [
+		{
+			"name": "Get JWT from Keycloak",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "scope",
+							"value": "my-client-scope",
+							"type": "text"
+						},
+						{
+							"key": "client_id",
+							"value": "my-client-id",
+							"type": "text"
+						},
+						{
+							"key": "grant_type",
+							"value": "client_credentials",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "https://p2p.keycloak.digital.softeam.expert/realms/keycloak-on-aws/protocol/openid-connect/token",
+					"protocol": "https",
+					"host": [
+						"p2p",
+						"keycloak",
+						"digital",
+						"softeam",
+						"expert"
+					],
+					"path": [
+						"realms",
+						"keycloak-on-aws",
+						"protocol",
+						"openid-connect",
+						"token"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Fibonacci Information",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer <JWT>",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": []
+				},
+				"url": {
+					"raw": "https://g0u3ifc1yf.execute-api.eu-west-3.amazonaws.com/math",
+					"protocol": "https",
+					"host": [
+						"g0u3ifc1yf",
+						"execute-api",
+						"eu-west-3",
+						"amazonaws",
+						"com"
+					],
+					"path": [
+						"math"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
