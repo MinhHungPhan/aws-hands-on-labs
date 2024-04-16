@@ -3,6 +3,8 @@
 ## Table of Contents
 
 - [Introduction](#introduction)
+- [Prerequisites](#prerequisites)
+    - [Creating an Instance Profile](#creating-an-instance-profile)
 - [Getting Started with AWS Elastic Beanstalk](#getting-started-with-aws-elastic-beanstalk)
     - [Accessing AWS Management Console](#accessing-aws-management-console)
     - [Navigating to Elastic Beanstalk](#navigating-to-elastic-beanstalk)
@@ -29,6 +31,40 @@
 ## Introduction
 
 Welcome to our comprehensive guide on deploying applications to AWS using AWS Management Console! This document is designed to help beginners navigate the complexities of AWS deployment, focusing on the use of AWS Elastic Beanstalk for deploying web applications. Whether you're deploying your first application or looking to refine your process, this guide provides step-by-step instructions, best practices, and key takeaways to ensure a smooth deployment process. Let's dive in and get your application up and running on AWS!
+
+## Prerequisites
+
+### Creating an Instance Profile
+
+An instance profile acts as a wrapper around an IAM role, allowing EC2 instances to assume that role. You can create instance profiles tailored to specific applications or limit them if certain services are not utilized.
+
+1. **Navigate to the IAM Console**:
+
+- Open the [IAM console](https://console.aws.amazon.com/iam/).
+- Go to the **Roles** page.
+
+2. **Create a New Role**:
+
+- Click **Create role**.
+- For the trusted entity type, select **AWS service**.
+- For the use case, choose **EC2** to allow EC2 instances to assume this role.
+
+3. **Attach Policies**:
+
+- Proceed to **Next** and attach the necessary Elastic Beanstalk managed policies. Additionally, attach any other policies that your application requires for operation.
+- Use the search bar to filter by typing `AWSElasticBeanstalk`.
+- Select the necessary policies for your environment, such as:
+    - `AWSElasticBeanstalkWebTier`
+    - `AWSElasticBeanstalkWorkerTier`
+    - `AWSElasticBeanstalkMulticontainerDocker`
+- Click **Attach policy** to apply these to your role.
+
+4. **Finalize Role Creation**:
+
+- After attaching policies, click **Next**.
+- Enter a name for the role, such as `aws-elasticbeanstalk-ec2-role`.
+- Optionally, add tags to the role.
+- Click **Create role** to finalize.
 
 ## Getting Started with AWS Elastic Beanstalk
 
@@ -70,8 +106,14 @@ Elastic Beanstalk requires specific roles and permissions to manage resources on
 
 #### Service Access
 
-- Elastic Beanstalk uses IAM roles and EC2 instance profiles to manage the environment on your behalf.
-- These roles allow Elastic Beanstalk to perform actions like resource creation and management within AWS.
+- Elastic Beanstalk uses IAM roles and EC2 instance profiles to manage the environment on your behalf. These roles allow Elastic Beanstalk to perform actions like resource creation and management within AWS.
+- In Amazon Web Services (AWS) Elastic Beanstalk, different roles are used to grant permissions to various components of the Elastic Beanstalk environment. Specifically, the `aws-elasticbeanstalk-service-role` and `aws-elasticbeanstalk-ec2-role` serve different purposes:
+
+1. **aws-elasticbeanstalk-service-role**: This role is assumed by the Elastic Beanstalk service itself. It provides the service with the necessary permissions to call other AWS services on your behalf to manage the resources that run your application. For example, this role allows Elastic Beanstalk to access AWS services like EC2, S3, CloudWatch, etc., to create, manage, and monitor the resources needed for your application. This role is crucial for Elastic Beanstalk to perform its operations, such as setting up load balancers, managing auto-scaling groups, or handling deployments.
+
+2. **aws-elasticbeanstalk-ec2-role** (commonly referred to as the "instance profile" or "EC2 role"): This role is assigned to the EC2 instances that are launched as part of your Elastic Beanstalk environment. It grants permissions that these instances need to interact with other AWS services. For example, this role might include permissions to read from an S3 bucket where your application's code or logs are stored, write logs to CloudWatch, send metrics to CloudWatch, or access a database on RDS. Essentially, this role defines what the servers themselves are authorized to do within AWS while running your application.
+
+In summary, the `aws-elasticbeanstalk-service-role` is used by the Elastic Beanstalk service to manage the environment and its resources, while the `aws-elasticbeanstalk-ec2-role` provides permissions to the individual EC2 instances within that environment to allow them to operate correctly and securely interact with other AWS services.
 
 #### Service Role
 
@@ -84,6 +126,12 @@ Elastic Beanstalk requires specific roles and permissions to manage resources on
 - If opting to use an existing service role, ensure it has the necessary permissions by attaching IAM managed policies that cover the required actions.
 - In our example, we'll opt for Elastic Beanstalk to create a new service role. This choice streamlines the process, ensuring the new service role is automatically endowed with the necessary permissions.
 - By selecting "Create and use a new service role", you enable Elastic Beanstalk to handle the creation and assignment of a service role that has the appropriate permissions predefined. This is the recommended approach for new deployments, simplifying the setup and ensuring your environment has the permissions it needs to operate smoothly.
+- This action will establish a new service role, designated as `aws-elasticbeanstalk-service-role`.
+
+#### EC2 instance profile
+
+- Select the `aws-elasticbeanstalk-ec2-role` created in the [previous section](#creating-an-instance-profile).
+- Click on "Next".
 
 ### Configuring Networking and Database
 
@@ -178,5 +226,6 @@ Deploying applications on AWS using manual uploads can initially seem daunting. 
 ## References
 
 - [AWS Elastic Beanstalk Documentation](https://aws.amazon.com/elasticbeanstalk/)
+- [Getting started using Elastic Beanstalk](https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/GettingStarted.html)
 - [Postman Official Website](https://www.postman.com/)
 - [Postman Learning Center](https://learning.postman.com/)
