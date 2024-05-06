@@ -1,4 +1,4 @@
-# Creating an Amazon ECR Public
+# Creating an Amazon ECR Public Repository
 
 Welcome to the README document for setting up and managing a public repository on Amazon Elastic Container Registry (Amazon ECR). This document aims to provide you with a comprehensive guide to create, configure, and use Amazon ECR Public. Whether you are a developer, a DevOps engineer, or someone just starting out with container management, this guide will walk you through the necessary steps to effectively use Amazon ECR Public for hosting your container images. 
 
