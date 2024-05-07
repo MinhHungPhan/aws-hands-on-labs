@@ -45,7 +45,7 @@ Before you begin, ensure you have the following:
 
 - In the “Create repository” screen, you need to provide some basic information:
     - **Visibility settings**: Choose “Private” to make sure your repository is not accessible to the public.
-    - **Repository name**: Enter a unique name for your repository.
+    - **Repository name**: Enter a unique name for your repository (e.g. `my-private-repo`).
 
 - There are additional settings that you can configure based on your requirements, such as:
     - **Tag immutability**: Enabling this will prevent image tags from being overwritten.
@@ -97,7 +97,7 @@ docker push your-account-id.dkr.ecr.your-region.amazonaws.com/my-app:latest
 To pull an image from your repository:
 
 ```bash
-docker pull <your-account-id>.dkr.ecr.us-west-2.amazonaws.com/my-private-repo:latest
+docker pull your-account-id.dkr.ecr.your-region.amazonaws.com/my-private-repo:latest
 ```
 
 ## Best Practices
