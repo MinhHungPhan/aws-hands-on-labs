@@ -29,7 +29,7 @@ Before you start, ensure that you have the following:
 
 To create a new public repository in Amazon ECR, follow these steps:
 
-1. Open the Amazon ECR console at https://console.aws.amazon.com/ecr/.
+1. Open the [Amazon ECR console](https://console.aws.amazon.com/ecr/).
 2. Navigate to "Public Repositories" and click on "Create repository."
 3. Enter a name for your repository and select the visibility settings.
 4. Click "Create repository."
@@ -37,7 +37,7 @@ To create a new public repository in Amazon ECR, follow these steps:
 **Example:**
 
 ```bash
-aws ecr-public create-repository --repository-name my-public-repo --region us-east-1
+aws ecr-public create-repository --repository-name my-public-repo --region your-region
 ```
 
 ## Configuring Repository Settings
@@ -58,7 +58,7 @@ To push a Docker image to your Amazon ECR Public repository, execute the followi
 1. Authenticate your Docker client to the Amazon ECR registry:
 
 ```bash
-aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws
+aws ecr-public get-login-password --region your-region | docker login --username AWS --password-stdin public.ecr.aws
 ```
 
 2. Build your Docker image and tag it:
