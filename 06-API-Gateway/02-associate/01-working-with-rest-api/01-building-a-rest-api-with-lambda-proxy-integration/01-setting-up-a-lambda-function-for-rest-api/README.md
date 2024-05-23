@@ -208,3 +208,4 @@ Setting up a Lambda function for REST API deployment through Lambda Proxy Integr
 - [How do I create and activate a new AWS account?](https://repost.aws/knowledge-center/create-and-activate-aws-account)
 - [Tutorial: Build a Hello World REST API with Lambda proxy integration](https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-create-api-as-simple-proxy-for-lambda.html)
 - [Testing Lambda functions in the console](https://docs.aws.amazon.com/lambda/latest/dg/testing-functions.html)
+- [JSON encoder and decoder](https://docs.python.org/3/library/json.html)
