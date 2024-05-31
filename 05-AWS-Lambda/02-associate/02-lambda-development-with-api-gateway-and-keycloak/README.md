@@ -211,3 +211,4 @@ Integrating Keycloak with AWS Lambda and API Gateway provides a robust solution 
 - [AWS Lambda Documentation](https://docs.aws.amazon.com/lambda/latest/dg/welcome.html)
 - [The OAuth 2.0 Authorization Framework on RFC Editor website](https://www.rfc-editor.org/rfc/rfc6749#section-3.2)
 - [The OAuth 2.0 Authorization Framework on Data Tracker website](https://datatracker.ietf.org/doc/html/rfc6749#section-3.2)
+- [Approaches for authenticating external applications in a machine-to-machine scenario](https://aws.amazon.com/fr/blogs/security/approaches-for-authenticating-external-applications-in-a-machine-to-machine-scenario/)
