@@ -6,6 +6,7 @@
 - [What is OIDC?](#what-is-oidc)
 - [Why Use OIDC with GitHub Actions?](#why-use-oidc-with-github-actions)
 - [How GitHub Actions authenticates with AWS using OIDC?](#how-github-actions-authenticates-with-aws-using-oidc)
+- [Authentication Sequence for GitHub Actions with AWS](#authentication-sequence-for-github-actions-with-aws)
 - [Setting Up OIDC Identity Provider in AWS](#setting-up-oidc-identity-provider-in-aws)
 - [Best Practices](#best-practices)
 - [Key Takeaways](#key-takeaways)
@@ -77,6 +78,23 @@ GitHub Actions authenticates with AWS using OpenID Connect (OIDC) by establishin
 9. **Perform AWS Actions**:
 
 - With the IAM role assumed, the GitHub Actions workflow can now perform the AWS actions defined in the role's permissions, such as deploying resources, managing services, or updating configurations.
+
+## Authentication Sequence for GitHub Actions with AWS
+
+```mermaid
+sequenceDiagram
+    participant GA as GitHub Actions
+    participant GH as GitHub
+    participant AWS as AWS STS
+
+    GA->>GH: Trigger workflow
+    GH->>GA: Generate JWT with claims
+    GA->>AWS: Send JWT
+    AWS->>AWS: Verify JWT signature and audience
+    AWS->>AWS: Check IAM Role Trust Policy
+    AWS->>GA: Decision (Access Granted or Denied)
+    GA->>GA: Perform AWS Actions (if access granted)
+```
 
 ## Setting Up OIDC Identity Provider in AWS
 
