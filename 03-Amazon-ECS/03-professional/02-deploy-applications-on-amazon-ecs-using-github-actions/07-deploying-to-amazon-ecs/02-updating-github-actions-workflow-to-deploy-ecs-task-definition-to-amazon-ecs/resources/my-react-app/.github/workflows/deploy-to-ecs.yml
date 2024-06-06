@@ -1,4 +1,4 @@
-name: Build and Push Docker image to ECR Private
+name: Deploy to Amazon ECS
 on:
   push:
     branches:
