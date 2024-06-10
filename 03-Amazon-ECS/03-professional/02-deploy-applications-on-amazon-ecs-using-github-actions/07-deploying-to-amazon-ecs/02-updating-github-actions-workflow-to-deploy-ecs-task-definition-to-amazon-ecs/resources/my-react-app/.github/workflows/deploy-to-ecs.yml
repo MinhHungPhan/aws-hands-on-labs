@@ -13,7 +13,7 @@ env:
   CONTAINER_NAME: ${{ vars.CONTAINER_NAME }}
 
 jobs:
-  build-and-push:
+  deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
