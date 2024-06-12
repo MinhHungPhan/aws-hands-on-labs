@@ -12,29 +12,29 @@ Welcome to the AWS Profile Configuration Guide! This document aims to simplify t
    - [Verify Configuration](#verify-configuration)
    - [Viewing the Files](#viewing-the-files)
    - [Editing the Files](#editing-the-files)
-- [Using the New Profile](#using-the-new-profile)
+   - [Using the New Profile](#using-the-new-profile)
 - [Best Practices](#best-practices)
 - [Key Takeaways](#key-takeaways)
 - [Conclusion](#conclusion)
 - [References](#references)
 
-### Introduction
+## Introduction
 
 The ability to manage multiple AWS accounts efficiently is crucial for individuals and organizations working on various projects or environments. This guide focuses on setting up AWS CLI profiles, a powerful feature that allows users to switch between accounts quickly and securely. By following this guide, you will learn how to configure, verify, and use additional AWS profiles.
 
-### Prerequisites
+## Prerequisites
 
-- AWS account(s)
-- Basic knowledge of terminal or command prompt usage
-- AWS CLI installed on your machine
+1. **AWS Account:** You need an active AWS account. If you don't have one, you can create it [here](https://aws.amazon.com/free/).
+2. **AWS CLI:** Install and configure the AWS Command Line Interface (CLI). Instructions can be found [here](https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html).
+3. **Terminal Usage:** Familiarity with basic terminal or command prompt operations is required.
 
-### Configuring a New AWS Profile
+## Configuring a New AWS Profile
 
-#### Install AWS CLI
+### Install AWS CLI
 
 Before setting up a new profile, ensure the AWS CLI is installed on your system. You can download it from the official AWS website by visiting [AWS CLI installation instructions](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) and follow the detailed steps for your operating system.
 
-#### Create a New Profile
+### Create a New Profile
 
 To create a new profile, open your terminal or command prompt and execute the following command, replacing `mynewprofile` with your desired profile name:
 
@@ -58,7 +58,7 @@ Default region name [None]: us-east-1
 Default output format [None]: json
 ```
 
-#### Verify Configuration
+### Verify Configuration
 
 Check the `~/.aws/credentials` and `~/.aws/config` files to ensure your new profile is correctly set up. You can edit these files directly for any adjustments.
 
@@ -76,7 +76,7 @@ ls
 
 You should see `credentials` and `config` files listed.
 
-#### Viewing the Files
+### Viewing the Files
 
 1. **View the Credentials File**: Use a text editor or a command like `cat` to view the contents of the `credentials` file. This file stores your access keys.
 
@@ -86,7 +86,7 @@ cat credentials
 
 Example output:
 
-```
+```yml
 [default]
 aws_access_key_id = YOUR_DEFAULT_ACCESS_KEY
 aws_secret_access_key = YOUR_DEFAULT_SECRET_KEY
@@ -103,7 +103,7 @@ cat config
 
 Example output:
 
-```
+```yml
 [default]
 region = us-east-1
 output = json
@@ -112,7 +112,7 @@ region = eu-west-1
 output = text
 ```
 
-#### Editing the Files
+### Editing the Files
 
 If you need to make any changes to these files, you can do so using a text editor. For example, to edit the `credentials` file, you could use `vi` or another editor of your choice:
 
@@ -126,7 +126,7 @@ Make your changes, save, and exit the editor. Repeat the process for the `config
 vi config
 ```
 
-### Using the New Profile
+## Using the New Profile
 
 To use the new profile, append `--profile mynewprofile` to your AWS CLI commands:
 
@@ -136,23 +136,23 @@ aws s3 ls --profile mynewprofile
 
 This command lists S3 buckets under the account associated with `mynewprofile`.
 
-### Best Practices
+## Best Practices
 
 - **Security**: Regularly rotate your AWS Access Keys and keep your credentials file secure.
 - **Naming Conventions**: Use descriptive names for your profiles to easily remember their associated accounts or purposes.
 - **Permissions**: Ensure that the IAM user has the necessary permissions for the intended tasks.
 
-### Key Takeaways
+## Key Takeaways
 
 - AWS CLI profiles enable the management of multiple AWS accounts.
 - Profiles are configured using `aws configure --profile`.
 - Security and naming conventions are crucial for efficient profile management.
 
-### Conclusion
+## Conclusion
 
 Managing multiple AWS accounts doesn't have to be complex. By leveraging AWS CLI profiles, you can streamline your workflow, enhance security, and switch between accounts with ease. Remember to follow best practices for naming and security to maintain an efficient and secure environment.
 
-### References
+## References
 
 - [Configure the AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html)
 - [Install or update to the latest version of the AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)
