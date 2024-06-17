@@ -1,8 +1,13 @@
 name: Build and Push Docker image to ECR Private
+
 on:
   push:
     branches:
       - main
+
+env:
+  AWS_REGION: ${{ vars.AWS_REGION }}
+
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
@@ -15,7 +20,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: your-region
+          aws-region: ${{ env.AWS_REGION }}
 
       - name: Login to Amazon ECR
         id: login-ecr
