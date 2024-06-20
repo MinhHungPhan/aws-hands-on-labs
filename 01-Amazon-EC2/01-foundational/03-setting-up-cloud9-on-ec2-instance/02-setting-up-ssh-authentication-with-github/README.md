@@ -35,7 +35,9 @@ Imagine SSH as a secure and exclusive tunnel through which your git commands tra
 To generate an SSH key on your system:
 
 1. Open your terminal.
+
 2. Run the command: `ssh-keygen -t ed25519 -C "your_email@example.com"`.
+
 3. Follow the prompts to specify the file path and passphrase (optional but recommended for additional security).
 
 **Example Command:**
@@ -50,8 +52,21 @@ This command generates a new SSH key, using your email as a label.
 
 After generating your SSH key, you need to add it to your GitHub account:
 
-1. Copy your SSH public key to the clipboard. On macOS, you can use `pbcopy < ~/.ssh/id_ed25519.pub`.
+1. Copy your SSH public key to the clipboard:
+
+- On macOS, you can use: `pbcopy < ~/.ssh/id_ed25519.pub`.
+
+- On Linux, you can use:
+
+```bash
+cd ~/.ssh
+cat id_ed25519.pub | xclip -selection clipboard
+```
+
+**Note**: Make sure `xclip` is installed. If not, install it using: `sudo apt-get install xclip`.
+
 2. Go to GitHub and navigate to Settings > SSH and GPG keys.
+
 3. Click on "New SSH key", paste your public key, and save.
 
 **Example of Adding a Key:**
@@ -64,7 +79,9 @@ After generating your SSH key, you need to add it to your GitHub account:
 To ensure that your SSH key is set up correctly:
 
 1. Open your terminal.
+
 2. Run: `ssh -T git@github.com`.
+
 3. If successful, you'll see a welcome message from GitHub.
 
 **Example Output:**
