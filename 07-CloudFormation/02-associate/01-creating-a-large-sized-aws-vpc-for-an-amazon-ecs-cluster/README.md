@@ -46,7 +46,7 @@ Before you begin, ensure you have the following prerequisites in place:
 
 The architecture of the large VPC for an Amazon ECS cluster includes the following components:
 
-![Architecture Diagram](./images/cloudformation.png)
+![Architecture Diagram](./images/01-cloudformation.png)
 
 - **Two Availability Zones:** Ensures high availability by spanning the VPC across two AZs.
 - **Public and Private Subnets:** Each AZ contains both public and private subnets.
