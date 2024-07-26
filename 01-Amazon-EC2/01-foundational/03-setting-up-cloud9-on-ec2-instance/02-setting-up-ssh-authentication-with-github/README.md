@@ -127,7 +127,9 @@ The key's randomart image is:
 
 This command generates a new RSA SSH key in the default OpenSSH format, using your email as a label.
 
-## Generating Your SSH Key using `Ed25519` algorithm.
+## Generating Your SSH Key using `Ed25519` algorithm
+
+The Ed25519 algorithm offers strong security and excellent performance, making it a modern and efficient choice for generating SSH keys. This section provides a step-by-step guide to create an Ed25519 SSH key, ensuring a secure and streamlined authentication process for your system.
 
 To generate an SSH key on your system:
 
@@ -143,7 +145,32 @@ To generate an SSH key on your system:
 ssh-keygen -t ed25519 -C "your_email@example.com"
 ```
 
-This command generates a new SSH key, using your email as a label.
+**Expected Output:**
+
+```plaintext
+Generating public/private ed25519 key pair.
+Enter file in which to save the key (/Users/your_username/.ssh/id_ed25519): /Users/your_username/Documents/ssh_keys/id_ed25519
+Enter passphrase (empty for no passphrase):
+Enter same passphrase again:
+Your identification has been saved in /Users/your_username/Documents/ssh_keys/id_ed25519.
+Your public key has been saved in /Users/your_username/Documents/ssh_keys/id_ed25519.pub.
+The key fingerprint is:
+SHA256:some_random_characters your_email@example.com
+The key's randomart image is:
++--[ED25519 256]--+
+|                 |
+|                 |
+|                 |
+|                 |
+|        .        |
+|       o S .     |
+|      o B = o    |
+|     . * B * o   |
+|      =O*oB*o.   |
++----[SHA256]-----+
+```
+
+This command generates a new Ed25519 SSH key, using your email as a label. The output confirms the creation and location of your key files and provides a visual representation of your key's fingerprint.
 
 ## Adding Your SSH Key to GitHub
 
