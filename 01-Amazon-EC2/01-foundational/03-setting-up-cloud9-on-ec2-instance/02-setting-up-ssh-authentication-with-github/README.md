@@ -30,7 +30,104 @@ Imagine SSH as a secure and exclusive tunnel through which your git commands tra
 - **Convenience:** Once set up, you won't need to enter your credentials repeatedly for every git operation.
 - **Easy to Manage:** SSH keys are easy to create, add, and revoke, making them manageable for users with multiple machines.
 
-## Generating Your SSH Key
+## Generating Your SSH Key using `RSA` algorithm
+
+The RSA algorithm is a widely supported and robust choice for generating SSH keys, providing a balance of security and compatibility. This section guides you through creating an RSA SSH key in two formats: the traditional PEM format and the default OpenSSH format. Follow the steps below to generate your RSA SSH key and enhance your system's security.
+
+### With `-----BEGIN RSA PRIVATE KEY-----`
+
+To generate an SSH key using the RSA algorithm and ensure the private key starts with `-----BEGIN RSA PRIVATE KEY-----`:
+
+1. Open your terminal.
+
+2. Run the command: `ssh-keygen -t rsa -b 4096 -m PEM -C "your_email@example.com"`.
+
+- `-t rsa`: Specifies RSA as the key type.
+- `-b 4096`: Sets the key length to 4096 bits for enhanced security.
+- `-m PEM`: Specifies the PEM format for the key.
+- `-C "your_email@example.com"`: Attaches your email as a label to the key, helpful for identifying the key's purpose or owner.
+
+3. Follow the prompts to specify the file path where you want to save the key and passphrase (optional but recommended for additional security).
+
+**Example Command:**
+
+```bash
+ssh-keygen -t rsa -b 4096 -m PEM -C "your_email@example.com"
+```
+
+**Expected Output:**
+
+```plaintext
+Generating public/private rsa key pair.
+Enter file in which to save the key (/Users/your_username/.ssh/id_rsa): /Users/your_username/Documents/ssh_keys/id_rsa_magento
+Enter passphrase (empty for no passphrase):
+Enter same passphrase again:
+Your identification has been saved in /Users/your_username/Documents/ssh_keys/id_rsa_magento.
+Your public key has been saved in /Users/your_username/Documents/ssh_keys/id_rsa_magento.pub.
+The key fingerprint is:
+SHA256:some_random_characters your_email@example.com
+The key's randomart image is:
++---[RSA 4096]----+
+|                 |
+|                 |
+|                 |
+|                 |
+|        .        |
+|       o S .     |
+|      o B = o    |
+|     . * B * o   |
+|      =O*oB*o.   |
++----[SHA256]-----+
+```
+
+### With `-----BEGIN OPENSSH PRIVATE KEY-----`
+
+To generate an SSH key using the RSA algorithm and ensure the private key starts with `-----BEGIN OPENSSH PRIVATE KEY-----`:
+
+1. Open your terminal.
+
+2. Run the command: `ssh-keygen -t rsa -b 4096 -C "your_email@example.com"`.
+
+- `-t rsa`: Specifies RSA as the key type.
+- `-b 4096`: Sets the key length to 4096 bits for enhanced security.
+- `-C "your_email@example.com"`: Attaches your email as a label to the key, helpful for identifying the key's purpose or owner.
+
+3. Follow the prompts to specify the file path where you want to save the key and passphrase (optional but recommended for additional security).
+
+**Example Command:**
+
+```bash
+ssh-keygen -t rsa -b 4096 -C "your_email@example.com"
+```
+
+**Expected Output:**
+
+```plaintext
+Generating public/private rsa key pair.
+Enter file in which to save the key (/Users/your_username/.ssh/id_rsa): /Users/your_username/Documents/ssh_keys/id_rsa_magento
+Enter passphrase (empty for no passphrase):
+Enter same passphrase again:
+Your identification has been saved in /Users/your_username/Documents/ssh_keys/id_rsa_magento.
+Your public key has been saved in /Users/your_username/Documents/ssh_keys/id_rsa_magento.pub.
+The key fingerprint is:
+SHA256:some_random_characters your_email@example.com
+The key's randomart image is:
++---[RSA 4096]----+
+|                 |
+|                 |
+|                 |
+|                 |
+|        .        |
+|       o S .     |
+|      o B = o    |
+|     . * B * o   |
+|      =O*oB*o.   |
++----[SHA256]-----+
+```
+
+This command generates a new RSA SSH key in the default OpenSSH format, using your email as a label.
+
+## Generating Your SSH Key using `Ed25519` algorithm.
 
 To generate an SSH key on your system:
 
@@ -43,7 +140,7 @@ To generate an SSH key on your system:
 **Example Command:**
 
 ```bash
-$ ssh-keygen -t ed25519 -C "your_email@example.com"
+ssh-keygen -t ed25519 -C "your_email@example.com"
 ```
 
 This command generates a new SSH key, using your email as a label.
