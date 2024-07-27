@@ -6,6 +6,7 @@
 - [What is SSH?](#what-is-ssh)
 - [Benefits of Using SSH with GitHub](#benefits-of-using-ssh-with-github)
 - [Understanding SSH Authentication with GitHub](#understanding-ssh-authentication-with-github)
+- [AWS Cloud9 Authentication with GitHub using SSH Key](#aws-cloud9-authentication-with-github-using-ssh-key)
 - [Generating Your SSH Key using `RSA` algorithm](#generating-your-ssh-key-using-rsa-algorithm)
 - [Generating Your SSH Key using `Ed25519` algorithm](#generating-your-ssh-key-using-ed25519-algorithm)
 - [Adding Your SSH Key to GitHub](#adding-your-ssh-key-to-github)
@@ -131,6 +132,48 @@ This sequence diagram provides a clear, step-by-step visualization of how SSH au
 ### Summary
 
 Public-key cryptography ensures secure authentication by allowing the public key to be used for verification while keeping the private key secret. This method ensures that only the legitimate holder of the private key can access the account, thus maintaining a secure and trusted connection between the user and GitHub.
+
+## AWS Cloud9 Authentication with GitHub using SSH Key
+
+This section explains how AWS Cloud9 authenticates with GitHub using an SSH key, providing a sequence diagram for better understanding.
+
+```mermaid
+sequenceDiagram
+    participant Developer
+    participant AWS Cloud9
+    participant GitHub
+
+    Developer->>AWS Cloud9: Open Cloud9 IDE
+    Developer->>AWS Cloud9: Generate SSH Key
+    AWS Cloud9-->>Developer: SSH Public Key
+    AWS Cloud9-->>Developer: SSH Private Key
+    Developer->>GitHub: Add SSH Public Key to GitHub
+    GitHub-->>Developer: SSH Key Added
+
+    Developer->>AWS Cloud9: Configure Git to use SSH Private Key
+    AWS Cloud9->>GitHub: Initiate SSH Connection (git clone/pull/push)
+    GitHub-->>AWS Cloud9: Verify SSH Key
+    AWS Cloud9-->>GitHub: Authenticated Request
+    GitHub-->>AWS Cloud9: Data Transfer (repository content)
+    AWS Cloud9-->>Developer: Repository Cloned/Pulled/Pushed
+```
+
+**Explanation of the Steps**:
+
+1. **Open Cloud9 IDE**: The developer opens the AWS Cloud9 Integrated Development Environment (IDE).
+2. **Generate SSH Key**: The developer generates an SSH key pair (public and private) within AWS Cloud9.
+3. **Retrieve SSH Public Key**: AWS Cloud9 provides the SSH public key to the developer.
+4. **Retrieve SSH Private Key**: AWS Cloud9 provides the SSH private key to the developer.
+5. **Add SSH Public Key to GitHub**: The developer adds the SSH public key to their GitHub account settings.
+6. **Confirm SSH Key Added**: GitHub confirms the SSH key has been successfully added.
+7. **Configure Git to use SSH Private Key**: The developer configures Git in AWS Cloud9 to use the SSH private key for authentication.
+8. **Initiate SSH Connection**: AWS Cloud9 initiates an SSH connection to GitHub for operations like cloning, pulling, or pushing repositories.
+9. **Verify SSH Key**: GitHub verifies the SSH key to authenticate the request from AWS Cloud9.
+10. **Authenticated Request**: AWS Cloud9 makes an authenticated request to GitHub.
+11. **Data Transfer**: GitHub transfers the repository content to AWS Cloud9.
+12. **Repository Cloned/Pulled/Pushed**: AWS Cloud9 completes the operation and the repository content is available to the developer.
+
+This sequence diagram illustrates the steps AWS Cloud9 takes to authenticate with GitHub using an SSH key, from key generation to successful repository operations, explicitly showing the handling of both the SSH public and private keys.
 
 ## Generating Your SSH Key using `RSA` algorithm
 
