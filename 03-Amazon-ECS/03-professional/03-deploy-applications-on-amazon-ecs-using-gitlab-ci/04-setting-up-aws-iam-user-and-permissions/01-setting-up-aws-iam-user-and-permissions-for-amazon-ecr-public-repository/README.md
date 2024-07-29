@@ -53,6 +53,7 @@ Access the [AWS Management Console](https://aws.amazon.com/console/) and navigat
 #### To Create a New IAM Policy:
 
 1. **Navigate to Policies** in the IAM dashboard and click **Create policy**.
+
 2. **Choose the JSON tab** and paste the following policy, modifying it as needed for your specific requirements:
 
 ```json
@@ -99,23 +100,30 @@ Access the [AWS Management Console](https://aws.amazon.com/console/) and navigat
 
 3. **Review and name your policy** (e.g., `ECRPublicAccessPolicy`), then create the policy.
 
-#### Using AWS Managed Policy
+#### Using AWS Managed Policy:
 
 Alternatively, if custom policies are not required, attach an AWS managed policy directly:
 
 1. **Navigate to Users, Roles, or Groups** in the IAM dashboard.
+
 2. **Select the User, Role, or Group** you wish to manage.
+
 3. **Go to the Permissions tab** and click on **Add permissions**.
+
 4. **Choose Attach existing policies directly** and search for ECR-specific policies like:
+
 - **AmazonEC2ContainerRegistryFullAccess** : This policy grants full access to ECR.
 - **AmazonEC2ContainerRegistryReadOnly** : This policy provides read-only access to ECR.
 - **AmazonEC2ContainerRegistryPowerUser** : This policy allows broad permissions except for certain critical actions like deleting a repository.
+
 5. **Select the appropriate policy** and click **Attach policy**.
 
 ### Step 3: Attach Policy to IAM Users, Groups, or Roles
 
 1. **Navigate to Users, Groups, or Roles** in the IAM dashboard.
+
 2. **Select the User, Group, or Role** to which you want to grant ECR Public access.
+
 3. **Attach the previously created or updated policy** to the selected IAM entity.
 
 ### Step 4: Verify Permissions
