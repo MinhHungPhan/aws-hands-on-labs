@@ -5,14 +5,15 @@
 - [Introduction](#introduction)
 - [Prerequisites](#prerequisites)
 - [Setup Instructions](#setup-instructions)
-  - [Step 1: Install Homebrew](#step-1-install-homebrew)
-  - [Step 2: Install Graphviz](#step-2-install-graphviz)
-  - [Step 3: Create a Python Virtual Environment](#step-3-create-a-python-virtual-environment)
-  - [Step 4: Install Python Packages](#step-4-install-python-packages)
+    - [Step 1: Install Homebrew](#step-1-install-homebrew)
+    - [Step 2: Install Graphviz](#step-2-install-graphviz)
+    - [Step 3: Create a Python Virtual Environment](#step-3-create-a-python-virtual-environment)
+    - [Step 4: Install Python Packages](#step-4-install-python-packages)
 - [Creating the VPC Diagram](#creating-the-vpc-diagram)
-  - [Step 1: Save the Python Script](#step-1-save-the-python-script)
-  - [Step 2: Run the Script](#step-2-run-the-script)
+    - [Step 1: Save the Python Script](#step-1-save-the-python-script)
+    - [Step 2: Run the Script](#step-2-run-the-script)
 - [Project Structure](#project-structure)
+- [Troubleshooting](#troubleshooting)
 - [Conclusion](#conclusion)
 - [References](#references)
 
@@ -137,6 +138,10 @@ vpc-diagram/
 ├── vpc_architecture.png    # Generated VPC Architecture diagram
 └── README.md               # Project README file
 ```
+
+## Troubleshooting
+
+If you encounter any issues during the setup or execution of this project, please refer to the [TROUBLESHOOTING](./TROUBLESHOOTING.md) guide for solutions to common problems.
 
 ## Conclusion
 
