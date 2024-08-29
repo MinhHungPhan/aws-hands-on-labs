@@ -1,0 +1,29 @@
+# Node modules
+node_modules/
+
+# Build output
+build/
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Development log files
+npm-debug.log
+yarn-error.log
+
+# System Files
+.DS_Store
+Thumbs.db
+
+# Editor directories and files
+.idea/
+*.sublime-project
+*.sublime-workspace
+.vscode/
+
+# Optional: Exclude source files if only serving static builds
+# /src/
