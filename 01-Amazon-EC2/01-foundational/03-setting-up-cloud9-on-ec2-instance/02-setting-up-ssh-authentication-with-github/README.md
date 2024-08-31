@@ -1,5 +1,7 @@
 # Setting Up SSH Authentication with GitHub
 
+This guide provides step-by-step instructions on setting up SSH authentication with GitHub. By following these instructions, you can securely connect to GitHub using SSH keys. With SSH authentication, you won't need to enter your username and password every time you perform git operations.
+
 ## Table of Contents
 
 - [Introduction](#introduction)
@@ -14,7 +16,7 @@
 - [Best Practices](#best-practices)
 - [Key Takeaways](#key-takeaways)
 - [Conclusion](#conclusion)
-- [References and Further Reading](#references-and-further-reading)
+- [References](#references)
 
 ## Introduction
 
@@ -375,7 +377,7 @@ Hi username! You've successfully authenticated, but GitHub does not provide shel
 
 Setting up SSH authentication with GitHub not only streamlines your workflow but also secures it. By following this guide, you can easily configure SSH keys for GitHub, allowing you to focus more on development and less on managing credentials. Remember to adhere to best practices to keep your operations secure.
 
-## References and Further Reading
+## References
 
 - [GitHub Official Documentation on SSH](https://docs.github.com/en/authentication/connecting-to-github-with-ssh)
 - [GitHub - Generating a new SSH key](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent)
