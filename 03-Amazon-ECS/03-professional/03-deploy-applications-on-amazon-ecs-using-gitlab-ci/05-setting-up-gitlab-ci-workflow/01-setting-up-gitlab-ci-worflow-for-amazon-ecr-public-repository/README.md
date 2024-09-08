@@ -61,57 +61,62 @@ Value: (your AWS secret access key here)
 
 - Click on the **Add variable** button to save the new variables. Once added, the variables are securely stored by GitLab. They will be accessible in your GitLab CI/CD pipeline but not visible in logs or exposed to users.
 
-6. **Use the Variables in Your GitLab CI/CD Pipeline**
-
-- You can reference these variables in your GitLab CI/CD pipeline configuration files using the `$` syntax. For example, when setting up jobs that require AWS credentials, use the variables like this:
-
-```yaml
-stages:
-  - build
-  - push
-
-build:
-  stage: build
-  script:
-    - docker build -t $AWS_REGISTRY/$AWS_REPOSITORY:$CI_COMMIT_SHA .
-    - docker login -u $AWS_ACCESS_KEY_ID -p $AWS_SECRET_ACCESS_KEY $AWS_REGISTRY
-    - docker push $AWS_REGISTRY/$AWS_REPOSITORY:$CI_COMMIT_SHA
-
-```
-
-- This approach allows your pipeline to authenticate to AWS securely without hardcoding sensitive information into your configuration files.
-
 ## Configuring GitLab CI/CD Pipeline
 
-1. Create a `.gitlab-ci.yml` file in the root directory of your repository.
+1. **Create a `.gitlab-ci.yml` File**
 
-2. Define the stages and jobs for your pipeline. Here’s an example configuration:
+Add a `.gitlab-ci.yml` file in the root directory of your repository to define your pipeline. Below is an example configuration for building and pushing a Docker image:
 
 ```yaml
+image: docker:latest
+
+services:
+  - docker:dind
+
 stages:
-  - build
-  - push
+  - build_and_push
 
-build:
-  stage: build
-  script:
-    - docker build -t $AWS_REGISTRY/$AWS_REPOSITORY:$CI_COMMIT_SHA .
-    - docker login -u $AWS_ACCESS_KEY_ID -p $AWS_SECRET_ACCESS_KEY $AWS_REGISTRY
+variables:
+  DOCKER_IMAGE: "react-app:latest"
+  AWS_REGION: $AWS_REGION
+  ECR_REPOSITORY: $ECR_REPOSITORY
 
-push:
-  stage: push
+build-and-push-docker-image:
+  stage: build_and_push
+  before_script:
+    # Update apk and install python3 and pip
+    - apk update
+    - apk add python3 py3-pip
+    # Set up virtual environment for AWS CLI
+    - python3 -m venv /tmp/venv
+    - source /tmp/venv/bin/activate
+    - pip install awscli
   script:
-    - docker push $AWS_REGISTRY/$AWS_REPOSITORY:$CI_COMMIT_SHA
+    - docker build --target production -t $DOCKER_IMAGE .
+    - aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+    - aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+    - aws configure set default.region $AWS_REGION
+    - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REPOSITORY
+    - docker tag $DOCKER_IMAGE $ECR_REPOSITORY:$CI_COMMIT_REF_SLUG
+    - docker push $ECR_REPOSITORY:$CI_COMMIT_REF_SLUG
+  only:
+    - main
 ```
 
-3. Customize the configuration based on your specific requirements, such as adding additional stages or jobs.
+2. **Using Variables in the Pipeline**
 
-## Pipeline Explanation
+In the configuration file, AWS-related environment variables are referenced using the `$` syntax. For example, `AWS_REGION`, `AWS_ACCESS_KEY_ID`, and `AWS_SECRET_ACCESS_KEY` are accessed securely in the pipeline.
 
-The `.gitlab-ci.yml` configuration file defines a pipeline with two stages: `build` and `push`. Here’s a breakdown of each job:
+3. **Customize Your Pipeline**
 
-- **Build**: Builds a Docker image from your Dockerfile and tags it with the commit SHA.
-- **Push**: Pushes the Docker image to the specified ECR repository.
+You can modify this configuration by adding additional stages or jobs based on your specific requirements.
+
+4. **Pipeline Overview**
+
+The `.gitlab-ci.yml` file defines a pipeline with the following key elements:
+- **Stages**: Currently, there is one stage, `build_and_push`.
+- **Job**: The `build-and-push-docker-image` job builds a Docker image from the provided Dockerfile, tags it, and pushes it to AWS ECR.
+- **Security**: AWS credentials are accessed securely using environment variables to avoid hardcoding sensitive information.
 
 ## Best Practices
 
@@ -131,9 +136,14 @@ By following this guide, you have learned how to set up a GitLab CI/CD pipeline 
 
 ## References
 
-- [GitLab CI/CD Documentation](https://docs.gitlab.com/ee/ci/)
+- [Gitlab CI: Build & push Docker image to AWS ECR (Elastic Container Registry)](https://www.youtube.com/watch?v=jg9sUceyGaQ&ab_channel=ValentinDespa)
+- [GitLab CI Build and Push Docker Image to AWS ECR | GitLab CI CD Docker AWS | Push Image to ECR](https://www.youtube.com/watch?v=dl2Dn1b85nw&ab_channel=DevOpsHint)
+- [Deploy to Amazon Elastic Container Service](https://docs.gitlab.com/ee/ci/cloud_deployment/ecs/deploy_to_aws_ecs.html)
+- [Automating Deployments to ECS with GitLab CI/CD](https://www.youtube.com/watch?v=Grc_5v4rOFI&ab_channel=GitLabUnfiltered)
+- [ECS.gitlab-ci.yml](https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/ci/templates/Jobs/Deploy/ECS.gitlab-ci.yml)
 - [Using variables in GitLab CI/CD](https://docs.gitlab.com/ee/ci/variables/)
 - [Docker Login](https://docs.docker.com/engine/reference/commandline/login/)
 - [Docker Build](https://docs.docker.com/engine/reference/commandline/build/)
 - [Docker Push](https://docs.docker.com/engine/reference/commandline/push/)
+
 
