@@ -1,0 +1,33 @@
+image: docker:latest
+
+services:
+  - docker:dind
+
+stages:
+  - build_and_push
+
+variables:
+  DOCKER_IMAGE: "react-app:latest"
+  AWS_REGION: $AWS_REGION
+  ECR_REPOSITORY: $ECR_REPOSITORY
+
+build-and-push-docker-image:
+  stage: build_and_push
+  before_script:
+    # Update apk and install python3 and pip
+    - apk update
+    - apk add python3 py3-pip
+    # Set up virtual environment for AWS CLI
+    - python3 -m venv /tmp/venv
+    - source /tmp/venv/bin/activate
+    - pip install awscli
+  script:
+    - docker build --target production -t $DOCKER_IMAGE .
+    - aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+    - aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+    - aws configure set default.region $AWS_REGION
+    - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REPOSITORY
+    - docker tag $DOCKER_IMAGE $ECR_REPOSITORY:$CI_COMMIT_REF_SLUG
+    - docker push $ECR_REPOSITORY:$CI_COMMIT_REF_SLUG
+  only:
+    - main
