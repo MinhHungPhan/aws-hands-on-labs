@@ -1,0 +1,11 @@
+[profile my-sso-admin-profile]
+sso_start_url = https://my-sso-portal.awsapps.com/start
+sso_region = us-east-1
+sso_account_id = 123456789011
+sso_role_name = AWSAdministratorAccess
+
+[profile my-sso-poweruser-profile]
+sso_start_url = https://my-sso-portal.awsapps.com/start
+sso_region = us-east-1
+sso_account_id = 123456789011
+sso_role_name = PowerUserAccess
