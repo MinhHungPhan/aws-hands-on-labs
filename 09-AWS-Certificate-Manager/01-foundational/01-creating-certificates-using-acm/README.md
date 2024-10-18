@@ -143,8 +143,8 @@ sequenceDiagram
     participant DNSProvider as Domain's DNS Provider
 
     User->>ACM: Request Certificate
-    ACM-->>User: Provide CNAME Record (_random-string.your-domain.com)
-    User->>DNSProvider: Add CNAME Record to DNS (_random-string.your-domain.com)
+    ACM-->>User: Provide CNAME Record (_random-string.your-domain.com, random-value.acm-validations.aws)
+    User->>DNSProvider: Add CNAME Record to DNS (_random-string.your-domain.com, random-value.acm-validations.aws)
     
     loop Periodic DNS Query
         ACM->>DNS: Query for CNAME (_random-string.your-domain.com)
