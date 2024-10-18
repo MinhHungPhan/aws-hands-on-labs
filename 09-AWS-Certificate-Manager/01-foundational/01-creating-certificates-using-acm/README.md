@@ -4,6 +4,7 @@
 
 - [Introduction](#introduction)
 - [What is AWS Certificate Manager (ACM)?](#what-is-aws-certificate-manager-acm)
+- [How It Works?](#how-it-works)
 - [Prerequisites](#prerequisites)
 - [Step-by-Step Guide to Creating Certificates](#step-by-step-guide-to-creating-certificates)
     - [Requesting a Certificate](#requesting-a-certificate)
@@ -36,6 +37,45 @@ Before you begin, ensure you have the following:
 - An **AWS Account** with the necessary permissions to access ACM.
 - Access to the **AWS Management Console**.
 - A **domain name** you control (if you're validating via DNS or email).
+
+## How It Works?
+
+Here's a detailed sequence diagram illustrating how the process of requesting, validating, and using an ACM certificate works under the hood:
+
+```mermaid
+sequenceDiagram
+    participant User as User
+    participant ACM as AWS Certificate Manager
+    participant DNS as DNS Provider
+    participant ELB as Elastic Load Balancer
+    participant CloudFront as Amazon CloudFront
+
+    User->>ACM: Request SSL/TLS Certificate
+    ACM-->>User: Provide CNAME Record for DNS Validation
+    User->>DNS: Add CNAME Record to DNS
+    loop Periodic Checks
+        ACM->>DNS: Query DNS for CNAME Record
+        DNS-->>ACM: Respond with CNAME Record (if available)
+    end
+    ACM-->>User: Certificate Validated and Issued
+
+    User->>ACM: Use Certificate with AWS Services
+    ACM-->>ELB: Attach Certificate to Elastic Load Balancer
+    ACM-->>CloudFront: Attach Certificate to CloudFront Distribution
+    ELB-->>User: Secure Traffic via HTTPS
+    CloudFront-->>User: Serve Content over HTTPS
+
+    User-->>ACM: Monitor Certificate for Renewal
+    ACM->>DNS: Query DNS to Verify CNAME Record for Renewal
+    ACM-->>User: Automatically Renew Certificate
+```
+
+### Process Breakdown
+
+1. **Requesting the Certificate**: The user requests a certificate through AWS Certificate Manager (ACM).
+2. **Validation Process**: ACM generates a CNAME record that the user adds to their DNS provider. ACM periodically checks the DNS to verify this record and issues the certificate once validated.
+3. **Using the Certificate**: The validated certificate can then be attached to services like Elastic Load Balancers (ELBs) and CloudFront distributions to secure web traffic.
+4. **Automatic Renewal**: ACM automatically renews the certificate as long as the DNS CNAME record remains in place.
 
 ## Step-by-Step Guide to Creating Certificates
 
