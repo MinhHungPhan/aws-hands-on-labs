@@ -117,6 +117,71 @@ sequenceDiagram
 - The user adds **delegation records** in the Shared Services Account’s private hosted zone (`interne.cloud.kientree.com`) to route specific subdomains to private hosted zones in **Account A** and **Account B**.
 - These delegation records direct queries for subdomains, such as `devops.interne.cloud.kientree.com`, to the appropriate private hosted zone in Account B.
 
+## How It Works?
+
+Here is an example of how an EC2 instance in Account A queries a domain name in Account B, and the traffic is forwarded to the Route 53 Resolver Inbound Endpoint in the Shared Services Account, which then resolves the query:
+
+```mermaid
+sequenceDiagram
+    participant EC2 as EC2 Instance (VPC A, Account A)
+    participant VPCResolver as VPC DNS Resolver (VPC A, Account A)
+    participant ResolverInbound as Route 53 Resolver Inbound Endpoint (DNS VPC, Shared Services Account)
+    participant PrivateZoneShared as Private Hosted Zone: interne.cloud.kientree.com (Shared Services Account)
+    participant PrivateZoneB as Private Hosted Zone: devops.interne.cloud.kientree.com (Account B)
+
+    EC2 ->> VPCResolver: Query devops.interne.cloud.kientree.com
+    VPCResolver ->> VPCResolver: Check resolver rule for interne.cloud.kientree.com
+    VPCResolver ->> ResolverInbound: Forward query to Route 53 Resolver Inbound Endpoint in DNS VPC, Shared Services Account
+    
+    ResolverInbound ->> ResolverInbound: Validate request origin from VPC A in Account A
+    ResolverInbound ->> PrivateZoneShared: Query Private Hosted Zone for interne.cloud.kientree.com
+    PrivateZoneShared ->> PrivateZoneShared: Check delegation record for devops subdomain
+    PrivateZoneShared ->> PrivateZoneB: Forward query to Private Hosted Zone in Account B
+    PrivateZoneB -->> PrivateZoneShared: Resolve IP for devops.interne.cloud.kientree.com
+    
+    PrivateZoneShared -->> ResolverInbound: Return resolved IP
+    ResolverInbound -->> VPCResolver: Return IP for devops.interne.cloud.kientree.com
+    VPCResolver -->> EC2: Return IP for devops.interne.cloud.kientree.com
+    
+    EC2 ->> devops.interne.cloud.kientree.com: Establish connection to resolved IP
+```
+
+### Explanation of Key Steps
+
+1. **EC2 Instance Query**:
+
+- The EC2 instance in VPC A (Account A) initiates a DNS query for `devops.interne.cloud.kientree.com`.
+
+2. **VPC DNS Resolver**:
+
+- The VPC DNS Resolver in VPC A checks the resolver rule for `interne.cloud.kientree.com`.
+- It forwards the query to the Route 53 Resolver Inbound Endpoint in the DNS VPC of the Shared Services Account.
+
+3. **Route 53 Resolver Inbound Endpoint**:
+
+- The Resolver Inbound Endpoint validates the request origin from VPC A in Account A.
+- It queries the Private Hosted Zone for `interne.cloud.kientree.com` in the Shared Services Account.
+
+4. **Private Hosted Zone in Shared Services Account**:
+
+- The Private Hosted Zone checks the delegation record for the `devops` subdomain.
+- It forwards the query to the Private Hosted Zone in Account B.
+
+5. **Private Hosted Zone in Account B**:
+
+- The Private Hosted Zone in Account B resolves the IP address for `devops.interne.cloud.kientree.com`.
+- It returns the resolved IP to the Private Hosted Zone in the Shared Services Account.
+
+6. **Return Resolved IP**:
+
+- The Private Hosted Zone in the Shared Services Account returns the resolved IP to the Resolver Inbound Endpoint.
+- The Resolver Inbound Endpoint returns the IP to the VPC DNS Resolver in VPC A.
+- The VPC DNS Resolver returns the IP to the EC2 instance.
+
+7. **Establish Connection**:
+
+- The EC2 instance establishes a connection to the resolved IP for `devops.interne.cloud.kientree.com`.
+
 ## References
 
 - [AWS Route 53 Resolver Documentation](https://docs.aws.amazon.com/route53/latest/dnsresolver/)
