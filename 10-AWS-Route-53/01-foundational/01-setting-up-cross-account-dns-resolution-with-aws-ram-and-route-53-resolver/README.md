@@ -42,24 +42,16 @@ sequenceDiagram
     participant AccountA as Account A
     participant AccountB as Account B
     participant SharedServices as Shared Services Account
-    participant RAMA as AWS RAM (Account A)
-    participant RAMB as AWS RAM (Account B)
     participant RAMSS as AWS RAM (Shared Services Account)
     participant VPCResolver as Route 53 Resolver Inbound Endpoint (DNS VPC, Shared Services Account)
-    participant PrivateZoneA as Private Hosted Zone: interne.cloud.kientree.com (Account A)
+    participant PrivateZoneA as Private Hosted Zone: manager.interne.cloud.kientree.com (Account A)
     participant PrivateZoneB as Private Hosted Zone: devops.interne.cloud.kientree.com (Account B)
     participant PrivateZoneSS as Private Hosted Zone: interne.cloud.kientree.com (Shared Services Account)
 
-    Note over User: Step 1: Configure RAM Sharing in Each Account
+    Note over User: Step 1: Configure RAM Sharing in Shared Services Account
 
-    User ->> RAMA: Share Private Hosted Zone (Account A) with Account B and Shared Services Account
-    RAMA -->> User: Confirm sharing of Private Hosted Zone (Account A) with specified accounts
-
-    User ->> RAMB: Share Private Hosted Zone (Account B) with Account A and Shared Services Account
-    RAMB -->> User: Confirm sharing of Private Hosted Zone (Account B) with specified accounts
-
-    User ->> RAMSS: Share Private Hosted Zone (Shared Services) with Account A and Account B
-    RAMSS -->> User: Confirm sharing of Private Hosted Zone (Shared Services) with specified accounts
+    User ->> RAMSS: Share Private Hosted Zone (Shared Services Account) with Account A and Account B
+    RAMSS -->> User: Confirm sharing of Private Hosted Zone (Shared Services Account) with specified accounts
 
     Note over User: Step 2: Set Up Route 53 Resolver Inbound Endpoint in Shared Services Account
     User ->> SharedServices: Create DNS VPC and Subnets
@@ -70,52 +62,57 @@ sequenceDiagram
     User ->> VPCResolver: Attach security group allowing DNS traffic (UDP & TCP on port 53) from VPCs in Account A and Account B
 
     Note over User: Step 4: Configure Resolver Rules in Each Account
-    User ->> AccountA: Create resolver rule for interne.cloud.kientree.com
+
+    User ->> AccountA: Create resolver rule for devops.interne.cloud.kientree.com
     AccountA ->> AccountA: Forward DNS queries to IPs of Resolver Inbound Endpoint in Shared Services Account
     AccountA ->> AccountA: Associate resolver rule with VPC A
 
-    User ->> AccountB: Create resolver rule for interne.cloud.kientree.com
+    User ->> AccountB: Create resolver rule for manager.interne.cloud.kientree.com
     AccountB ->> AccountB: Forward DNS queries to IPs of Resolver Inbound Endpoint in Shared Services Account
     AccountB ->> AccountB: Associate resolver rule with VPC B
 
     User ->> SharedServices: Create resolver rules for cloud.kientree.com, interne.cloud.kientree.com, and kientree.com
     SharedServices ->> SharedServices: Associate resolver rules with VPCs in Shared Services Account
 
-    Note over User: Step 5: Configure Private Hosted Zone Delegation
+    Note over User: Step 5: Configure Private Hosted Zone Delegation in Shared Services Account
     User ->> PrivateZoneSS: Add delegation records for subdomains in Account A and Account B
-    PrivateZoneSS ->> PrivateZoneA: Delegate records for subdomains under interne.cloud.kientree.com in Account A
-    PrivateZoneSS ->> PrivateZoneB: Delegate records for devops.interne.cloud.kientree.com in Account B
+    PrivateZoneSS ->> PrivateZoneA: Delegate records for manager.interne.cloud.kientree.com to Account A
+    PrivateZoneSS ->> PrivateZoneB: Delegate records for devops.interne.cloud.kientree.com to Account B
 
     Note over User: Setup Complete
 ```
 
 ### Explanation of Each Step
 
-1. **Step 1: Configure RAM Sharing in Each Account**:
+1. **Step 1: Configure RAM Sharing in the Shared Services Account**:
 
-- **Account A** shares its private hosted zone with **Account B** and the **Shared Services Account**.
-- **Account B** shares its private hosted zone with **Account A** and the **Shared Services Account**.
-- The **Shared Services Account** shares its private hosted zone with **Account A** and **Account B**.
-- This setup enables all accounts to access each other’s private hosted zones.
+- **Shared Services Account** uses **AWS RAM** to share the `interne.cloud.kientree.com` private hosted zone with **Account A** and **Account B**.
+- This setup enables both Account A and Account B to access the records in the `interne.cloud.kientree.com` hosted zone without needing their own RAM configurations.
+- By centralizing the hosted zone in the Shared Services Account, each account can access this parent domain and any delegated subdomains.
 
-2. **Step 2: Set Up Route 53 Resolver Inbound Endpoint in Shared Services Account**:
+2. **Step 2: Set Up Route 53 Resolver Inbound Endpoint in the Shared Services Account**:
 
-- The user creates a **DNS VPC** in the Shared Services Account with **subnets in multiple Availability Zones** for high availability.
-- Within this VPC, the user configures a **Route 53 Resolver Inbound Endpoint**.
+- The user creates a **DNS VPC** in the Shared Services Account with **subnets in multiple Availability Zones** to ensure high availability for DNS query resolution.
+- Within this VPC, the user configures a **Route 53 Resolver Inbound Endpoint**. This endpoint serves as a central point for handling DNS queries forwarded from Account A and Account B.
 
-3. **Step 3: Set Security Groups for Inbound Endpoint**:
+3. **Step 3: Set Security Groups for the Inbound Endpoint**:
 
-- The user attaches a **security group** to the Inbound Endpoint, allowing DNS traffic (UDP and TCP on port 53) from **VPCs in Account A and Account B**.
+- The user attaches a **security group** to the Inbound Endpoint to allow incoming DNS traffic (UDP and TCP on port 53) from the **VPCs in Account A and Account B**.
+- This security group setup ensures that DNS queries from Account A and Account B are accepted by the Inbound Endpoint, enabling cross-account DNS resolution.
 
 4. **Step 4: Configure Resolver Rules in Each Account**:
 
-- **Account A** and **Account B** create **resolver rules** for `interne.cloud.kientree.com` that forward queries to the IP addresses of the **Resolver Inbound Endpoint** in the Shared Services Account.
-- The **Shared Services Account** configures resolver rules for `cloud.kientree.com`, `interne.cloud.kientree.com`, and `kientree.com`, associating them with its VPCs.
+- **Account A** creates a **resolver rule** for the `devops.interne.cloud.kientree.com` subdomain, forwarding these DNS queries to the **Resolver Inbound Endpoint** in the Shared Services Account.
+- **Account B** creates a **resolver rule** for the `manager.interne.cloud.kientree.com` subdomain, also forwarding queries to the **Resolver Inbound Endpoint** in the Shared Services Account.
+- The **Shared Services Account** sets up **resolver rules** for `cloud.kientree.com`, `interne.cloud.kientree.com`, and `kientree.com` to enable direct DNS resolution within its own VPCs.
 
-5. **Step 5: Configure Private Hosted Zone Delegation**:
+5. **Step 5: Configure Private Hosted Zone Delegation in the Shared Services Account**:
 
-- The user adds **delegation records** in the Shared Services Account’s private hosted zone (`interne.cloud.kientree.com`) to route specific subdomains to private hosted zones in **Account A** and **Account B**.
-- These delegation records direct queries for subdomains, such as `devops.interne.cloud.kientree.com`, to the appropriate private hosted zone in Account B.
+- The user adds **delegation records** within the `interne.cloud.kientree.com` private hosted zone in the Shared Services Account.
+- These delegation records direct specific subdomains to the private hosted zones in Account A and Account B:
+    - **`manager.interne.cloud.kientree.com`** is delegated to the private hosted zone in **Account A**.
+    - **`devops.interne.cloud.kientree.com`** is delegated to the private hosted zone in **Account B**.
+- This delegation enables the Shared Services Account to route DNS queries for each subdomain to the appropriate account, allowing Account A and Account B to resolve each other’s subdomains via the Shared Services Account’s hosted zone.
 
 ## How It Works?
 
