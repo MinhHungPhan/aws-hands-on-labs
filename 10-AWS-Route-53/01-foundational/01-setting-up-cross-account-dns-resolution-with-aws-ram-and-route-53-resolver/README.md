@@ -31,53 +31,57 @@ Resolver rules specify how Route 53 Resolver handles queries:
 
 Below is the sequence diagram illustrating the setup process for cross-account DNS resolution. This includes:
 
-- **Configuring AWS RAM sharing** across three accounts: Account A, Account B, and the Shared Services Account.
-- **Setting up the Route 53 Resolver Inbound Endpoint** in the Shared Services Account.
+- **Configuring AWS RAM sharing** across three accounts: Account A, Account B, and the Centralized DNS Account.
+- **Setting up the Route 53 Resolver Inbound Endpoint** in the Centralized DNS Account.
 - **Configuring resolver rules** in each account.
 - **Establishing private hosted zone delegation** to ensure seamless DNS resolution across accounts.
 
 ```mermaid
 sequenceDiagram
     participant User as User
-    participant AccountA as Account A
-    participant AccountB as Account B
-    participant SharedServices as Shared Services Account
-    participant RAMSS as AWS RAM (Shared Services Account)
-    participant VPCResolver as Route 53 Resolver Inbound Endpoint (DNS VPC, Shared Services Account)
-    participant PrivateZoneA as Private Hosted Zone: manager.interne.cloud.kientree.com (Account A)
-    participant PrivateZoneB as Private Hosted Zone: devops.interne.cloud.kientree.com (Account B)
-    participant PrivateZoneSS as Private Hosted Zone: interne.cloud.kientree.com (Shared Services Account)
+    participant CentralDNS as Centralized DNS Account
+    participant ParticipatingA as Participating Account A
+    participant ParticipatingB as Participating Account B
+    participant OnPrem as On-Premises DNS
+    participant RAMSS as AWS RAM (Centralized DNS Account)
+    participant VPCResolver as Route 53 Resolver Inbound Endpoint (DNS VPC, Centralized DNS Account)
+    participant PrivateZoneA as Private Hosted Zone: finops.private.cloud.kientree.com (Account A)
+    participant PrivateZoneB as Private Hosted Zone: devops.private.cloud.kientree.com (Account B)
 
-    Note over User: Step 1: Configure RAM Sharing in Shared Services Account
+    Note over User: Step 1: Set up a centralized DNS account
 
-    User ->> RAMSS: Share Private Hosted Zone (Shared Services Account) with Account A and Account B
-    RAMSS -->> User: Confirm sharing of Private Hosted Zone (Shared Services Account) with specified accounts
+    User ->> CentralDNS: Create DNS-VPC
+    User ->> CentralDNS: Create Resolver Outbound Endpoint (to on-prem DNS)
+    User ->> CentralDNS: Create Resolver Inbound Endpoint (from on-prem & AWS accounts)
+    User ->> CentralDNS: Create Forwarding Rule for kientree.com (to on-prem DNS)
+    User ->> CentralDNS: Create Forwarding Rule for private.cloud.kientree.com (to Resolver Inbound Endpoint)
+    User ->> CentralDNS: Associate kientree.com forwarding rule with DNS-VPC
+    User ->> CentralDNS: Associate interne.cloud.kientree.com forwarding rule with DNS-VPC
+    User ->> RAMSS: Share Forwarding Rules with Participating Accounts
 
-    Note over User: Step 2: Set Up Route 53 Resolver Inbound Endpoint in Shared Services Account
-    User ->> SharedServices: Create DNS VPC and Subnets
-    SharedServices ->> VPCResolver: Create Route 53 Resolver Inbound Endpoint
-    VPCResolver -->> SharedServices: Configure endpoint with IPs in multiple subnets for high availability
-    
-    Note over User: Step 3: Set Security Groups for Inbound Endpoint
-    User ->> VPCResolver: Attach security group allowing DNS traffic (UDP & TCP on port 53) from VPCs in Account A and Account B
+    Note over User: Step 2: Set up participating accounts
 
-    Note over User: Step 4: Configure Resolver Rules in Each Account
+    User ->> ParticipatingA: Accept Shared Forwarding Rules (if not shared with Org)
+    User ->> ParticipatingB: Accept Shared Forwarding Rules (if not shared with Org)
+    User ->> ParticipatingA: Associate Forwarding Rules with VPCs in Account A
+    User ->> ParticipatingB: Associate Forwarding Rules with VPCs in Account B
 
-    User ->> AccountA: Create resolver rule for devops.interne.cloud.kientree.com
-    AccountA ->> AccountA: Forward DNS queries to IPs of Resolver Inbound Endpoint in Shared Services Account
-    AccountA ->> AccountA: Associate resolver rule with VPC A
+    Note over User: Step 3: Create and associate private hosted zones
 
-    User ->> AccountB: Create resolver rule for manager.interne.cloud.kientree.com
-    AccountB ->> AccountB: Forward DNS queries to IPs of Resolver Inbound Endpoint in Shared Services Account
-    AccountB ->> AccountB: Associate resolver rule with VPC B
+    User ->> PrivateZoneA: Create Private Hosted Zone: finops.private.cloud.kientree.com
+    User ->> PrivateZoneA: Associate finops.private.cloud.kientree.com with VPCs in Account A
+    User ->> ParticipatingA: Create authorization to associate finops.private.cloud.kientree.com with DNS-VPC
+    User ->> CentralDNS: Associate DNS-VPC with finops.private.cloud.kientree.com in Account A
 
-    User ->> SharedServices: Create resolver rules for cloud.kientree.com, interne.cloud.kientree.com, and kientree.com
-    SharedServices ->> SharedServices: Associate resolver rules with VPCs in Shared Services Account
+    User ->> PrivateZoneB: Create Private Hosted Zone: devops.private.cloud.kientree.com
+    User ->> PrivateZoneB: Associate devops.private.cloud.kientree.com with VPCs in Account B
+    User ->> ParticipatingB: Create authorization to associate devops.private.cloud.kientree.com with DNS-VPC
+    User ->> CentralDNS: Associate DNS-VPC with devops.private.cloud.kientree.com in Account B
 
-    Note over User: Step 5: Configure Private Hosted Zone Delegation in Shared Services Account
-    User ->> PrivateZoneSS: Add delegation records for subdomains in Account A and Account B
-    PrivateZoneSS ->> PrivateZoneA: Delegate records for manager.interne.cloud.kientree.com to Account A
-    PrivateZoneSS ->> PrivateZoneB: Delegate records for devops.interne.cloud.kientree.com to Account B
+    Note over User: Step 4: Configure on-premises DNS forwarders
+
+    User ->> OnPrem: Configure conditional forwarding (for private.cloud.kientree.com via Resolver Inbound Endpoint IPs)
+    Note over OnPrem, CentralDNS: Ensure connectivity between on-premises and DNS-VPC (via VPN or Direct Connect)
 
     Note over User: Setup Complete
 ```
@@ -183,4 +187,8 @@ sequenceDiagram
 
 - [AWS Route 53 Resolver Documentation](https://docs.aws.amazon.com/route53/latest/dnsresolver/)
 - [AWS Private Hosted Zones Documentation](https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/hosted-zones-private.html)
+- [Considerations when working with a private hosted zone](https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/hosted-zone-private-considerations.html)
 - [AWS Resource Access Manager Documentation](https://docs.aws.amazon.com/ram/latest/userguide/)
+- [Scaling DNS management across multiple accounts and VPCs](https://docs.aws.amazon.com/fr_fr/whitepapers/latest/hybrid-cloud-dns-options-for-vpc/scaling-dns-management-across-multiple-accounts-and-vpcs.html)
+- [Simplify DNS management in a multi-account environment with Route 53 Resolver](https://aws.amazon.com/blogs/security/simplify-dns-management-in-a-multiaccount-environment-with-route-53-resolver/)
+- [Handling Private Hosted Zones in R53](https://crishantha.medium.com/handling-private-hosted-zones-in-r53-3fbcdcd047e1)
