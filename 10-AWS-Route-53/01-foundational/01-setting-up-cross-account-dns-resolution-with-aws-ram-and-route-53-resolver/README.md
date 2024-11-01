@@ -124,15 +124,12 @@ Each AWS account participating in the DNS solution must be configured to use the
 2. **Associate Forwarding Rules**:
 - Associate the rules with VPCs hosting workloads in each participating account to start resolving on-premises domains.
 
-3. **Create Private Hosted Zones**:
-- Create a unique private hosted zone within each account using subdomains of `private.cloud.kientree.com` to prevent conflicts (e.g., `devops.private.cloud.kientree.com`).
-
 ### Step 3: Create Private Hosted Zones
 
 In this step, set up private hosted zones in each participating account and associate them with the centralized DNS-VPC for cross-account DNS resolution.
 
 1. **Create Private Hosted Zone**:
-- In each participating account, create a private hosted zone with a unique subdomain of `private.cloud.kientree.com`.
+- In each participating account, create a private hosted zone with a unique subdomain of `private.cloud.kientree.com`. Use unique names for each private hosted zone to avoid domain conflicts in your environment (for example, `devops.private.cloud.kientree.com` or `finops.private.cloud.kientree.com`).
 
 2. **Associate Private Hosted Zone with DNS-VPC**:
 - Authorize and associate each private hosted zone with the DNS-VPC to enable centralized DNS resolution across accounts.
