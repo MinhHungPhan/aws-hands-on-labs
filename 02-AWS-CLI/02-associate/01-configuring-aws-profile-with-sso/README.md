@@ -14,6 +14,8 @@ Welcome to this guide on configuring your AWS profile using Single Sign-On (SSO)
     - [Step 2: Selecting AWS Accounts and Roles](#step-2-selecting-aws-accounts-and-roles)
     - [Step 3: Verifying Configuration](#step-3-verifying-configuration)
 - [Using AWS SSO Profiles](#using-aws-sso-profiles)
+- [Sign in to an IAM Identity Center session](#sign-in-to-an-iam-identity-center-session)
+- [Sign out of your IAM Identity Center sessions](#sign-out-of-your-iam-identity-center-sessions)
 - [Best Practices](#best-practices)
 - [Key Takeaways](#key-takeaways)
 - [Conclusion](#conclusion)
@@ -214,6 +216,54 @@ aws ec2 describe-instances --profile my-sso-admin-profile
 aws sts get-caller-identity --profile my-sso-poweruser-profile
 ```
 
+## Sign in to an IAM Identity Center session
+
+To sign in to an IAM Identity Center session, follow these steps:
+
+1. **Start the SSO Login Process**:
+
+- Run the following command to start the SSO login process:
+
+```bash
+aws sso login --profile my-dev-profile
+```
+
+- SSO authorization page will automatically open in your default browser. Follow the instructions in the browser to complete this authorization request.
+- Successfully logged into Start URL: `https://my-sso-portal.awsapps.com/start`
+- Your IAM Identity Center session credentials are cached and the AWS CLI uses them to securely retrieve AWS credentials for the IAM role specified in the profile.
+
+3. **If the AWS CLI can't open your browser**:
+
+- You can also specify which sso-session profile to use when logging in using the `--sso-session` parameter of the `aws sso login` command. The sso-session option is not available for legacy IAM Identity Center.
+
+```bash
+aws sso login --sso-session my-dev-session
+```
+
+- Starting with version 2.22.0, PKCE authorization is the default. To use device authorization for signing in, add the `--use-device-code` option.
+
+```bash
+aws sso login --profile my-dev-profile --use-device-code
+```
+
+- The authentication token is cached to disk under the `~/.aws/sso/cache` directory with a filename based on the sso_start_url.
+
+## Sign out of your IAM Identity Center sessions
+
+When you are done using your IAM Identity Center profile, you can let your credentials expire or run the following command to delete your cached credentials.
+
+```bash
+aws sso logout
+```
+
+You will see a message like this:
+
+```bash
+Successfully signed out of all SSO profiles.
+```
+
+**Note**: The sign-in process may prompt you to allow the AWS CLI access to your data. Since the AWS CLI is built on top of the SDK for Python, permission messages may contain variations of the botocore name.
+
 ## Best Practices
 
 - **Use meaningful profile names**: Name your profiles in a way that clearly indicates the environment or purpose, such as `prod-account`, `dev-account`, or `admin-role`.
@@ -237,5 +287,6 @@ In this guide, we covered how to configure your AWS profile with Single Sign-On 
 
 - [AWS CLI Official Documentation](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-sso.html)
 - [AWS Single Sign-On](https://aws.amazon.com/single-sign-on/)
+- [Configuring IAM Identity Center authentication with the AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-sso.html)
 - [Best Practices for AWS SSO](https://docs.aws.amazon.com/singlesignon/latest/userguide/best-practices.html)
 - [AWS CLI v2 Installation Guide](https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2.html) 
