@@ -271,7 +271,12 @@ CREATE TABLE employees (
 
 ```sql
 INSERT INTO employees (id, name, department) 
-VALUES (1, 'John Doe', 'IT');
+VALUES 
+    (1, 'John Doe', 'IT'),
+    (2, 'Jane Smith', 'HR'),
+    (3, 'Emily Johnson', 'Marketing'),
+    (4, 'Michael Brown', 'Sales'),
+    (5, 'Linda Davis', 'Finance');
 ```
 
 3. **Select Data from the Table:**
