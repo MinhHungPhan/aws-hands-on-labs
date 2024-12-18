@@ -4,7 +4,9 @@
 
 - [Introduction](#introduction)
 - [Prerequisites](#prerequisites)
+- [Provisioning an Aurora Serverless V2 Cluster](#provisioning-an-aurora-serverless-v2-cluster)
 - [Enabling Query Editor for Aurora Serverless V2](#enabling-query-editor-for-aurora-serverless-v2)
+- [Using AWS CloudShell to Manage Aurora Serverless V2](#using-aws-cloudshell-to-manage-aurora-serverless-v2)
 - [Accessing the Query Editor](#accessing-the-query-editor)
 - [Running Queries](#running-queries)
 - [Best Practices](#best-practices)
@@ -27,7 +29,8 @@ Before you start using the Query Editor, ensure the following requirements are m
     - `rds:DescribeDBClusters`
     - `rds:ExecuteStatement`
     - `rds:Select`
-- **Query Editor Setup:** The Query Editor feature must be enabled for your Aurora cluster.
+- **Data API Enabled:** The Data API should be turned on for your Aurora Serverless cluster.
+- **AWS Secrets Manager Secret:** The Data API requires a secret in AWS Secrets Manager that contains your database credentials (username/password).
 
 ## Provisioning an Aurora Serverless V2 Cluster
 
@@ -99,6 +102,128 @@ To use the Query Editor, you must first configure your database and IAM settings
 ```
 
 3. **Database Credentials:** Ensure you have a database user with access to execute queries.
+
+## Using AWS CloudShell to Manage Aurora Serverless V2
+
+### Step 1: Open AWS CloudShell
+
+1. Sign in to the [AWS Management Console](https://console.aws.amazon.com/).
+
+2. Click the **CloudShell** icon in the top navigation bar. This opens a browser-based shell environment with AWS CLI pre-installed.
+
+3. Make sure the AWS region in CloudShell matches the region of your Aurora cluster (you can change regions from the console top bar if needed).
+
+### Step 2: Identify Your Aurora Cluster Information
+
+You’ll need the cluster Resource ARN and confirm the cluster’s identifier and region.
+
+**List RDS Clusters:**
+
+```bash
+aws rds describe-db-clusters
+```
+
+This returns a JSON description of all your DB clusters. Look for your cluster’s ARN (`DBClusterArn`), cluster identifier (`DBClusterIdentifier`), and note the region.
+
+**Example of Extracting Cluster Identifiers:**
+
+```bash
+aws rds describe-db-clusters --query 'DBClusters[].DBClusterIdentifier' --output text
+```
+
+If you know your cluster name, you can skip this step. Otherwise, this helps confirm what you have.
+
+### Step 3: Ensure You Have the Needed ARNs
+
+You now need two ARNs:
+
+- **Resource ARN:** Your cluster’s ARN, often in the format: `arn:aws:rds:<region>:<account_id>:cluster:<cluster_identifier>`
+
+- **Secret ARN:** From the secret you created in Secrets Manager.  
+
+Example format: `arn:aws:secretsmanager:<region>:<account_id>:secret:<your-db-secret-name>-<random>`
+
+You can find these in the console or, for the secret:
+
+```bash
+aws secretsmanager list-secrets --query 'SecretList[].ARN'
+```
+
+(Locate the secret you created for DB credentials.)
+
+### Step 4: Connect to the Database Using the Data API
+
+The Data API doesn’t require a direct network connection to your Aurora cluster. Instead, you call the API endpoint via HTTPS. Thus, you don’t need to modify security groups or open inbound ports for CloudShell.
+
+**Check an Existing Database:**
+
+If you’re using Aurora PostgreSQL, you likely have a default `postgres` database.  
+For Aurora MySQL, you can use `information_schema` or another known database.
+
+**Run a Simple Query (e.g., list tables):**
+
+```bash
+aws rds-data execute-statement \
+    --resource-arn arn:aws:rds:<region>:<account_id>:cluster:<cluster_identifier> \
+    --secret-arn arn:aws:secretsmanager:<region>:<account_id>:secret:<your-db-secret> \
+    --database postgres \  # For PostgreSQL; use a known DB name
+    --sql "SELECT * FROM information_schema.tables;" \
+    --region <region>
+```
+
+This returns a JSON result set showing all tables visible to the specified database.
+
+### Step 5: Create a New Database
+
+If you want to create a new database inside your Aurora cluster, you can do so via SQL. For PostgreSQL-compatible clusters, run `CREATE DATABASE` from the `postgres` database. For MySQL-compatible clusters, run it from `information_schema`.
+
+**Example (PostgreSQL):**
+
+```bash
+aws rds-data execute-statement \
+    --resource-arn arn:aws:rds:<region>:<account_id>:cluster:<cluster_identifier> \
+    --secret-arn arn:aws:secretsmanager:<region>:<account_id>:secret:<your-db-secret> \
+    --database postgres \
+    --sql "CREATE DATABASE my_new_database;" \
+    --region <region>
+```
+
+**Example (MySQL):**
+
+```bash
+aws rds-data execute-statement \
+    --resource-arn arn:aws:rds:<region>:<account_id>:cluster:<cluster_identifier> \
+    --secret-arn arn:aws:secretsmanager:<region>:<account_id>:secret:<your-db-secret> \
+    --database information_schema \
+    --sql "CREATE DATABASE my_new_database;" \
+    --region <region>
+```
+
+After running this command, you can verify the new database is created by listing databases again:
+
+**PostgreSQL:**
+
+```bash
+aws rds-data execute-statement \
+    --resource-arn arn:aws:rds:<region>:<account_id>:cluster:<cluster_identifier> \
+    --secret-arn arn:aws:secretsmanager:<region>:<account_id>:secret:<your-db-secret> \
+    --database postgres \
+    --sql "SELECT datname FROM pg_database;" \
+    --region <region>
+```
+
+**MySQL:**
+
+```bash
+aws rds-data execute-statement \
+    --resource-arn arn:aws:rds:<region>:<account_id>:cluster:<cluster_identifier> \
+    --secret-arn arn:aws:secretsmanager:<region>:<account_id>:secret:<your-db-secret> \
+    --database information_schema \
+    --sql "SHOW DATABASES;" \
+    --region <region>
+```
+
+The new database (`my_new_database`) should appear in the output.
 
 ## Accessing the Query Editor
 
