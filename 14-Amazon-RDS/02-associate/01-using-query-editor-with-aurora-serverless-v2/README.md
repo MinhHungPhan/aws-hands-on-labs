@@ -257,28 +257,7 @@ The Query Editor provides an intuitive interface to write and execute SQL statem
 
 Here are some simple SQL query examples:
 
-1. **Select Data from a Table:**
-
-```sql
-SELECT * FROM employees WHERE department = 'IT';
-```
-
-2. **Insert Data into a Table:**
-
-```sql
-INSERT INTO employees (id, name, department) 
-VALUES (1, 'John Doe', 'IT');
-```
-
-3. **Update Data:**
-
-```sql
-UPDATE employees 
-SET department = 'HR' 
-WHERE id = 1;
-```
-
-4. **Create a Table:**
+1. **Create a Table:**
 
 ```sql
 CREATE TABLE employees (
@@ -288,10 +267,37 @@ CREATE TABLE employees (
 );
 ```
 
-5. **Delete Data:**
+2. **Insert Data into the Table:**
+
+```sql
+INSERT INTO employees (id, name, department) 
+VALUES (1, 'John Doe', 'IT');
+```
+
+3. **Select Data from the Table:**
+
+```sql
+SELECT * FROM employees WHERE department = 'IT';
+```
+
+4. **Update Data in the Table:**
+
+```sql
+UPDATE employees 
+SET department = 'HR' 
+WHERE id = 1;
+```
+
+5. **Delete Data from the Table:**
 
 ```sql
 DELETE FROM employees WHERE id = 1;
+```
+
+6. **Review the Changes:**
+
+```sql
+SELECT * FROM employees;
 ```
 
 ## Best Practices
