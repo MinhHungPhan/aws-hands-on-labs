@@ -4,6 +4,7 @@
 
 - [Introduction](#introduction)
 - [Prerequisites](#prerequisites)
+- [Benefits of Using Query Editor](#benefits-of-using-query-editor)
 - [Provisioning an Aurora Serverless V2 Cluster](#provisioning-an-aurora-serverless-v2-cluster)
 - [Enabling Query Editor for Aurora Serverless V2](#enabling-query-editor-for-aurora-serverless-v2)
 - [Using AWS CloudShell to Manage Aurora Serverless V2](#using-aws-cloudshell-to-manage-aurora-serverless-v2)
@@ -27,6 +28,28 @@ Before you start using the Query Editor, ensure the following requirements are m
 - **IAM User/Role Permissions:** Ensure you have the necessary permissions to access and manage your RDS resources.
 - **Data API Enabled:** The Data API should be turned on for your Aurora Serverless cluster.
 - **AWS Secrets Manager Secret:** The Data API requires a secret in AWS Secrets Manager that contains your database credentials (username/password).
+
+## Benefits of Using Query Editor
+
+1. **No Local SQL Client Required** 
+
+You don’t have to install or configure psql, mysql, or any other database client on your local machine or CloudShell. The Query Editor is built right into the AWS Management Console, so you can start querying immediately.
+
+2. **Simple Access and Setup**
+
+Since it’s in the RDS console, you just select your database instance or cluster, open the Query Editor, and enter valid credentials. There’s no need to worry about SSH tunnels, VPNs, or configuring a separate client.
+
+3. **Secure Integration with AWS Services**
+
+- **IAM-Based Access**: You can control who can use the Query Editor through AWS Identity and Access Management (IAM) policies.  
+- **Optional Data API Support**: For Aurora Serverless, if you have the Data API enabled, the Query Editor can leverage that HTTPS-based connectivity.  
+- **Secrets Manager**: You can store database credentials in AWS Secrets Manager and reference them within the Query Editor, eliminating manual password handling.
+
+4. **No Extra Networking Configuration**
+
+- When you use the Query Editor with Aurora Serverless and the Data API, you don’t need to open inbound ports on your DB’s security group. The Query Editor (through the Data API) communicates with the database internally via AWS’s secure channels.
+- With the Data API, you are **not** making a direct TCP (or HTTP/HTTPS) connection to the database. Instead, you make an HTTPS call to an **AWS-managed endpoint** (the Data API endpoint), and AWS internally routes that request to your Aurora Serverless database.  
+- This is different from a typical setup where you open port 3306 or 5432 to connect directly via MySQL/PostgreSQL clients.
 
 ## Provisioning an Aurora Serverless V2 Cluster
 
