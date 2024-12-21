@@ -24,11 +24,7 @@ Before you start using the Query Editor, ensure the following requirements are m
 
 - **AWS Account:** You need an active AWS account with appropriate IAM permissions.
 - **Aurora Cluster:** A provisioned Aurora Serverless V2 cluster must be available.
-- **IAM User/Role Permissions:** Ensure you have the following permissions:
-    - `rds-db:connect`
-    - `rds:DescribeDBClusters`
-    - `rds:ExecuteStatement`
-    - `rds:Select`
+- **IAM User/Role Permissions:** Ensure you have the necessary permissions to access and manage your RDS resources.
 - **Data API Enabled:** The Data API should be turned on for your Aurora Serverless cluster.
 - **AWS Secrets Manager Secret:** The Data API requires a secret in AWS Secrets Manager that contains your database credentials (username/password).
 
@@ -86,19 +82,48 @@ To use the Query Editor, you must first configure your database and IAM settings
 
 ```json
 {
-"Version": "2012-10-17",
-"Statement": [
-    {
-    "Effect": "Allow",
-    "Action": [
-        "rds-db:connect",
-        "rds:ExecuteStatement",
-        "rds:Select"
-    ],
-    "Resource": "arn:aws:rds-db:*:*:dbuser:*/username"
-    }
-]
-}
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "QueryEditor0",
+            "Effect": "Allow",
+            "Action": [
+                "secretsmanager:GetSecretValue",
+                "secretsmanager:PutResourcePolicy",
+                "secretsmanager:PutSecretValue",
+                "secretsmanager:DeleteSecret",
+                "secretsmanager:DescribeSecret",
+                "secretsmanager:TagResource"
+            ],
+            "Resource": "arn:aws:secretsmanager:*:*:secret:rds-db-credentials/*"
+        },
+        {
+            "Sid": "QueryEditor1",
+            "Effect": "Allow",
+            "Action": [
+                "secretsmanager:GetRandomPassword",
+                "tag:GetResources",
+                "secretsmanager:CreateSecret",
+                "secretsmanager:ListSecrets",
+                "dbqms:CreateFavoriteQuery",
+                "dbqms:DescribeFavoriteQueries",
+                "dbqms:UpdateFavoriteQuery",
+                "dbqms:DeleteFavoriteQueries",
+                "dbqms:GetQueryString",
+                "dbqms:CreateQueryHistory",
+                "dbqms:UpdateQueryHistory",
+                "dbqms:DeleteQueryHistory",
+                "dbqms:DescribeQueryHistory",
+                "rds-data:BatchExecuteStatement",
+                "rds-data:BeginTransaction",
+                "rds-data:CommitTransaction",
+                "rds-data:ExecuteStatement",
+                "rds-data:RollbackTransaction"
+            ],
+            "Resource": "*"
+        }
+    ]
+}                
 ```
 
 3. **Database Credentials:** Ensure you have a database user with access to execute queries.
