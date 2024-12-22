@@ -5,6 +5,7 @@
 - [Introduction](#introduction)
 - [Prerequisites](#prerequisites)
 - [Benefits of Using Query Editor](#benefits-of-using-query-editor)
+- [How it works?](#how-it-works)
 - [Provisioning an Aurora Serverless V2 Cluster](#provisioning-an-aurora-serverless-v2-cluster)
 - [Enabling Query Editor for Aurora Serverless V2](#enabling-query-editor-for-aurora-serverless-v2)
 - [Using AWS CloudShell to Manage Aurora Serverless V2](#using-aws-cloudshell-to-manage-aurora-serverless-v2)
@@ -33,11 +34,13 @@ Before you start using the Query Editor, ensure the following requirements are m
 
 1. **No Local SQL Client Required** 
 
-You don’t have to install or configure psql, mysql, or any other database client on your local machine or CloudShell. The Query Editor is built right into the AWS Management Console, so you can start querying immediately.
+- You don’t have to install or configure psql, mysql, or any other database client on your local machine or CloudShell.
+- The Query Editor is built right into the AWS Management Console, so you can start querying immediately.
 
 2. **Simple Access and Setup**
 
-Since it’s in the RDS console, you just select your database instance or cluster, open the Query Editor, and enter valid credentials. There’s no need to worry about SSH tunnels, VPNs, or configuring a separate client.
+- Since it’s in the RDS console, you just select your database instance or cluster, open the Query Editor, and enter valid credentials.
+- There’s no need to worry about SSH tunnels, VPNs, or configuring a separate client.
 
 3. **Secure Integration with AWS Services**
 
@@ -50,6 +53,61 @@ Since it’s in the RDS console, you just select your database instance or clust
 - When you use the Query Editor with Aurora Serverless and the Data API, you don’t need to open inbound ports on your DB’s security group. The Query Editor (through the Data API) communicates with the database internally via AWS’s secure channels.
 - With the Data API, you are **not** making a direct TCP (or HTTP/HTTPS) connection to the database. Instead, you make an HTTPS call to an **AWS-managed endpoint** (the Data API endpoint), and AWS internally routes that request to your Aurora Serverless database.  
 - This is different from a typical setup where you open port 3306 or 5432 to connect directly via MySQL/PostgreSQL clients.
+
+## How it works?
+
+### CloudShell Use Case
+
+```mermaid
+sequenceDiagram
+    participant CS as CloudShell (User)
+    participant CLI as AWS CLI (rds-data)
+    participant API as Data API Endpoint
+    participant SM as AWS Secrets Manager
+    participant DB as Aurora Serverless
+    
+    CS->>CLI: aws rds-data execute-statement (SQL Query)
+    CLI->>API: HTTPS request (ExecuteStatement)
+    API->>SM: Retrieve DB credentials
+    SM-->>API: Return credentials securely
+    API->>DB: Connect internally using credentials
+    DB-->>API: Execute SQL and return results
+    API-->>CLI: JSON response
+    CLI-->>CS: Display query results
+```
+
+**Flow Explanation**
+1. The user in **CloudShell** runs `aws rds-data execute-statement`.  
+2. The **AWS CLI** sends an HTTPS request to the **Data API** endpoint.  
+3. The Data API fetches credentials from **AWS Secrets Manager**.  
+4. The Data API then connects internally to **Aurora Serverless**.  
+5. The database runs the query and sends results back to the Data API.  
+6. The Data API returns a JSON response to the CLI, which then displays the result to CloudShell.
+
+### Query Editor Use Case
+
+```mermaid
+sequenceDiagram
+    participant QE as Query Editor (User)
+    participant API as Data API Endpoint
+    participant SM as AWS Secrets Manager
+    participant DB as Aurora Serverless
+
+    QE->>API: Submit SQL in RDS Query Editor (HTTPS)
+    API->>SM: Retrieve DB credentials
+    SM-->>API: Return credentials securely
+    API->>DB: Connect internally using credentials
+    DB-->>API: Execute SQL and return results
+    API-->>QE: Display query results in Query Editor
+```
+
+**Flow Explanation**
+1. The user types SQL statements directly into the **Query Editor** in the RDS console.  
+2. The Query Editor sends an HTTPS request to the **Data API** endpoint.  
+3. The Data API retrieves credentials from **AWS Secrets Manager**.  
+4. Credentials in hand, the Data API connects to the **Aurora Serverless** database privately inside AWS.  
+5. After execution, the DB sends the results back to the Data API.  
+6. The Data API returns those results to the Query Editor, displaying them in the console.
 
 ## Provisioning an Aurora Serverless V2 Cluster
 
