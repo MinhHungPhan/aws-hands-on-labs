@@ -32,8 +32,9 @@ sequenceDiagram
     participant User
     participant AWS CLI
     participant SSM Service
-    participant EC2 Instance
     participant VPC Endpoint
+    participant EC2 Instance
+    participant SSM Agent
 
     User->>AWS CLI: Initiate "StartSession" command
     AWS CLI->>SSM Service: Send "StartSession" request
@@ -155,7 +156,8 @@ To launch an EC2 instance from an Amazon Machine Image (AMI) with the SSM Agent 
 7. **Configure Security Group:**
 
 - Create a new security group or select an existing one. Ensure that the security group allows the following outbound traffic:
-    - **Outbound Rule**: Allow HTTPS traffic (TCP port 443) to the VPC endpoint private IPs or the Security Group ID used by the VPC endpoints. This is necessary for the SSM Agent to communicate with AWS Systems Manager.
+    - **Outbound Rule**: Allow HTTPS traffic (TCP port 443) to the VPC endpoint private IPs or the Security Group ID used by the VPC endpoints. This is necessary for the SSM Agent to communicate with AWS Systems Manager Service.
+    - **Inbound Rules**: None are required specifically for SSM. Other inbound rules are only needed if your application or other services require them.
 
 8. **Review and Launch:**
 
