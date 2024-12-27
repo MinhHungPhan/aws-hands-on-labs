@@ -23,12 +23,13 @@ Welcome! This guide will walk you through the process of connecting to an EC2 in
 
 ## How It Works?
 
-The following sequence diagram illustrates the process of managing an EC2 instance using AWS Systems Manager (SSM) through the AWS CLI. It demonstrates how a user initiates a session, how the request is routed through the SSM service and VPC endpoint, and how commands are executed on the EC2 instance via the SSM Agent.
+The sequence diagram below walks you through managing an EC2 instance using AWS Systems Manager (SSM) via the AWS CLI. It showcases how the EC2 instance, with the help of the SSM Agent, establishes and maintains an outbound HTTPS connection to the SSM service. You'll see the steps involved when a user initiates a session, how the request is seamlessly routed through the SSM service and VPC endpoint, and how commands are executed on the EC2 instance through the SSM Agent. This process ensures secure and efficient management of your EC2 instances without the need for inbound security group rules.
 
 ### Diagram
 
 ```mermaid
 sequenceDiagram
+
     participant User
     participant AWS CLI
     participant SSM Service
@@ -36,76 +37,101 @@ sequenceDiagram
     participant EC2 Instance
     participant SSM Agent
 
-    User->>AWS CLI: Initiate "StartSession" command
-    AWS CLI->>SSM Service: Send "StartSession" request
-    SSM Service->>VPC Endpoint: Route request to private subnet based on EC2 instance metadata
-    VPC Endpoint->>EC2 Instance: Forward request to SSM Agent
-    EC2 Instance->>SSM Agent: Pass "StartSession" command
-    SSM Agent->>SSM Service: Establish communication channel
-    SSM Service->>AWS CLI: Respond with session details
-    AWS CLI->>User: Return connection link or establish session
+    %% --- 1) EC2 Boots and Agent Starts ---
+    note over EC2 Instance, SSM Agent: EC2 instance boots<br>SSM Agent service starts
+    EC2 Instance->>SSM Agent: Start SSM Agent
+    SSM Agent->>SSM Service: Initiate or maintain outbound connection (HTTPS/443)
+    note over SSM Service: Agent registers/polls with SSM
 
-    User->>AWS CLI: Start interacting with EC2 instance
-    AWS CLI->>SSM Service: Send command or input
-    SSM Service->>VPC Endpoint: Route command to EC2 instance
-    VPC Endpoint->>EC2 Instance: Forward command to SSM Agent
-    EC2 Instance->>SSM Agent: Execute command
-    SSM Agent->>SSM Service: Return output of the command
-    SSM Service->>AWS CLI: Send command output
-    AWS CLI->>User: Display output
+    %% --- 2) StartSession Request ---
+    User->>AWS CLI: aws ssm start-session --target <instance-id>
+    AWS CLI->>SSM Service: Send "StartSession" request
+
+    SSM Service->>VPC Endpoint: Route request to private subnet (based on instance metadata)
+    VPC Endpoint->>SSM Agent: Instruct agent to open session<br>(reusing the existing outbound connection)
+
+    %% SSM Agent "receives" the instruction because it has
+    %% already established or is actively polling SSM Service
+    SSM Agent->>SSM Service: Confirm session + establish data channel
+
+    SSM Service->>AWS CLI: Return session details (e.g. Stream URL)
+    AWS CLI->>User: Session is now active
+
+    %% --- 3) Commands + Outputs ---
+    User->>AWS CLI: Send commands (stdin)
+    AWS CLI->>SSM Service: Forward commands
+    SSM Service->>VPC Endpoint: Route commands (private or public path)
+    VPC Endpoint->>SSM Agent: Deliver commands
+    SSM Agent->>EC2 Instance: Execute commands locally
+    EC2 Instance->>SSM Agent: Return command output
+    SSM Agent->>SSM Service: Send output (over the existing connection)
+    SSM Service->>AWS CLI: Forward output
+    AWS CLI->>User: Display results
 ```
 
 ### Detailed Steps Explanation:
 
-1. **User Initiates a Session**:
+1. **EC2 Boots and Agent Starts**:
 
-- The user initiates the session using the AWS CLI or the AWS Management Console.
-- The AWS CLI sends the "StartSession" request to the Systems Manager (SSM) Service in the user's region.
+- The EC2 instance boots up, and the SSM Agent service starts.  
+- The SSM Agent initiates or maintains an outbound connection (HTTPS/443) to the SSM Service.  
+- The SSM Agent registers or polls with the SSM Service.
 
-2. **SSM Service Processes the Request**:
+2. **User Initiates a Session**:
 
-- The SSM Service identifies the target EC2 instance by its Instance ID.
-- It retrieves the associated metadata (VPC ID, Subnet ID, and Region) for the instance.
+- The user initiates the session using the AWS CLI with the command:
 
-3. **Determine the Correct VPC Endpoint**:
+```bash
+aws ssm start-session --target <instance-id>
+```
 
-- The SSM Service determines the appropriate VPC Endpoint based on the instance's VPC and subnet information.
-- The endpoint must be of type "Interface Endpoint" for Systems Manager and associated with the private subnets.
+- The AWS CLI sends the **"StartSession"** request to the Systems Manager (SSM) Service.
 
-4. **Route Request via VPC Endpoint**:
+3. **SSM Service Processes the Request**:
 
-- The SSM Service routes the request to the VPC Endpoint in the target VPC.
-- The endpoint forwards the request securely to the EC2 instance within the private subnet.
+- The SSM Service identifies the target EC2 instance by its **Instance ID**.  
+- It retrieves the associated metadata (**VPC ID**, **Subnet ID**, and **Region**) for the instance.
 
-5. **SSM Agent Processes the Request**:
+4. **Determine the Correct VPC Endpoint**:
 
-- The SSM Agent running on the EC2 instance receives the "StartSession" command.
-- It validates the request against the IAM Role attached to the instance (ensuring the necessary permissions are present).
+- The SSM Service determines the **appropriate VPC Endpoint** based on the instance's VPC and subnet information.  
+- The endpoint must be of type **"Interface Endpoint"** for Systems Manager and associated with the **private subnets**.
 
-6. **Establish Secure Communication**:
+5. **Route Request via VPC Endpoint**:
 
-- Once validated, the SSM Agent establishes a secure, encrypted communication channel with the SSM Service.
-- All communication is encrypted using TLS to ensure privacy and security.
+- The SSM Service **routes the request** to the **VPC Endpoint** in the target VPC.  
+- The endpoint **forwards** the request securely to the **SSM Agent** on the EC2 instance within the private subnet.
 
-7. **Respond to AWS CLI**:
+6. **SSM Agent Processes the Request**:
 
-- The SSM Service sends session details back to the AWS CLI or Management Console.
-- The CLI displays the connection details, allowing the user to interact with the EC2 instance.
+- The SSM Agent running on the EC2 instance **receives the "StartSession" command** via the existing outbound connection.  
+- It **validates** the request against the **IAM Role** attached to the instance (ensuring the necessary permissions are present).
 
-8. **User Interaction**:
+7. **Establish Secure Communication**:
 
-- The user interacts with the EC2 instance by sending commands via the CLI or Console.
-- These commands are forwarded through the SSM Service to the VPC Endpoint and then to the SSM Agent on the instance.
+- Once validated, the SSM Agent **confirms the session** and establishes a **secure, encrypted data channel** with the SSM Service.  
+- All communication is **encrypted** using **TLS** to ensure privacy and security.
 
-9. **Command Execution and Response**:
+8. **Respond to AWS CLI**:
 
-- The SSM Agent executes the commands on the EC2 instance.
-- It sends the output back to the SSM Service, which forwards it to the AWS CLI or Console.
+- The SSM Service sends **session details** (e.g., **Stream URL**) back to the **AWS CLI**.  
+- The AWS CLI **displays** the connection details, allowing the user to **interact** with the EC2 instance.
 
-10. **Session Termination**:
+9. **User Interaction**:
 
-- When the user ends the session, the SSM Agent terminates the communication channel.
-- The session details are logged for auditing purposes in AWS CloudTrail or other logging services, if configured.
+- The user **interacts** with the EC2 instance by sending commands via the **AWS CLI**.  
+- These commands are **forwarded** through the **SSM Service** to the **VPC Endpoint**, then on to the **SSM Agent** on the instance.
+
+10. **Command Execution and Response**:
+
+- The SSM Agent **executes** the commands on the EC2 instance.  
+- It **sends the output** back to the SSM Service, which forwards it to the **AWS CLI**.  
+- The AWS CLI **displays** the results to the user.
+
+11. **Session Termination**:
+
+- When the user **ends the session**, the SSM Agent **terminates** the communication channel.  
+- The session details are **logged** for auditing purposes in **AWS CloudTrail** or other logging services, if configured.
 
 ## Setup Instructions
 
