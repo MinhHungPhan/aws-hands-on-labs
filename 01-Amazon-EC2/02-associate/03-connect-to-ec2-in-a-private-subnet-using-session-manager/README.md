@@ -9,7 +9,7 @@
     - [Step 3: Create VPC Endpoints for Systems Manager Access](#step-3-create-vpc-endpoints-for-systems-manager-access)
     - [Step 4: Configure IAM Roles and Policies](#step-4-configure-iam-roles-and-policies)
     - [Step 5: Attach the IAM Role to EC2](#step-5-attach-the-iam-role-to-ec2)
-    - [Step 6: Enable Session Manager](#step-6-enable-session-manager)
+    - [Step 6: Verify EC2 Instance in Fleet Manager](#step-6-verify-ec2-instance-in-fleet-manager)
 - [Connecting to the EC2 Instance](#connecting-to-the-ec2-instance)
 - [Best Practices](#best-practices)
 - [Key Takeaways](#key-takeaways)
@@ -135,6 +135,13 @@ Your VPC endpoints are now configured, allowing your EC2 instance to communicate
 2. Select the EC2 instance you wish to connect to.
 3. Choose **Actions** > **Security** > **Modify IAM Role**.
 4. Attach the role created in Step 2.
+
+### Step 6: Verify EC2 Instance in Fleet Manager
+
+1. Navigate to the AWS Systems Manager console.
+2. In the left-hand navigation pane, choose **Fleet Manager** under **Node Management**.
+3. Verify that your EC2 instance appears in the list of managed instances.
+4. Ensure the instance status is **Online** and that it is properly managed by Systems Manager.
 
 ## Connecting to the EC2 Instance
 
