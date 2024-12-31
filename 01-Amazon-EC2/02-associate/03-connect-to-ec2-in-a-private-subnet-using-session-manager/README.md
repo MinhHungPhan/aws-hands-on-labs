@@ -295,8 +295,11 @@ AWS Session Manager is a powerful tool for managing EC2 instances securely and e
 
 ## References
 
-- [AWS Session Manager Documentation](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager.html)
-- [IAM Policies for Session Manager](https://docs.aws.amazon.com/systems-manager/latest/userguide/getting-started-restrict-access.html)
 - [AWS CLI Documentation](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-welcome.html)
+- [AWS Session Manager Documentation](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager.html)
+- [Find AMIs with the SSM Agent preinstalled](https://docs.aws.amazon.com/systems-manager/latest/userguide/ami-preinstalled-agent.html)
+- [IAM Policies for Session Manager](https://docs.aws.amazon.com/systems-manager/latest/userguide/getting-started-restrict-access.html)
+- [Managing EC2 instances with Systems Manager](https://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-setting-up-ec2.html)
 - [How do I install SSM Agent on an Amazon EC2 Linux instance at launch?](https://repost.aws/knowledge-center/install-ssm-agent-ec2-linux)
 - [Setting up Session Manager](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-getting-started.html)
+- [SSM Agent is not online. The SSM Agent was unable to connect to a Systems Manager endpoint to register itself with the service.](https://repost.aws/questions/QUCuCl8hlTR_Sdnn7GrGsr4w/ssm-agent-is-not-online-the-ssm-agent-was-unable-to-connect-to-a-systems-manager-endpoint-to-register-itself-with-the-service)
