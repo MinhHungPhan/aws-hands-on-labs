@@ -123,23 +123,57 @@ If you do not already have an Aurora Serverless V2 cluster, follow these steps t
 - Click on **Create Database**.
 - Choose **Amazon Aurora** as the engine type.
 - Select **Aurora MySQL-Compatible Edition** or **Aurora PostgreSQL-Compatible Edition**.
-- Under "Capacity Type," choose **Serverless v2**.
 
 3. **Configure Database Settings:**
 
 - Enter a **DB cluster identifier** (e.g., `aurora-serverless-cluster`).
 - Set the **Master username** and **Master password**.
+- **Master Username**
+    - **What it is**: The **admin login** used to access and manage the DB instance.
+    - **Purpose**: This user has **full privileges** to:
+        - Connect to the database instance
+        - Create and manage databases
+        - Create users, assign roles/permissions
+        - Run administrative commands
+    - **Required**: You must provide this to create the DB instance
+    - **Example**: `admin`, `awsuser`, `root`, `postgreg` (depending on engine and naming rules)
 
-4. **Choose Network and Security Settings:**
+4. **Cluster Storage Configuration:**
+
+- Select the Aurora DB cluster storage configuration that best meets your application's needs in terms of cost predictability and performance.
+
+- **Aurora I/O-Optimized**
+    - **Best for**: Applications with high or unpredictable I/O usage (I/O costs > 25% of total DB costs).
+    - **Pricing**: Predictable and simplified — includes all I/O operations in the instance and storage pricing.
+
+- **Aurora Standard**
+    - **Best for**: Applications with low to moderate I/O usage (I/O costs < 25% of total DB costs).
+    - **Pricing**: Pay-as-you-go model for I/O operations.
+
+📕 **Note**: For a typical POC in a development environment, go with Aurora Standard to minimize costs while still having access to all the features you need to validate your application.
+
+5. **DB Instance Configuration:**
+
+- Select **Serverless V2**
+- Set the **Minimum Capacity** and **Maximum Capacity** in **Aurora Capacity Units (ACUs)**:
+     - **Minimum Capacity**: `0` ACUs (allows pausing during inactivity).
+     - **Maximum Capacity**: `2` ACUs (suitable for moderate workloads).
+
+6. **Choose Network and Security Settings:**
 
 - Select a **VPC** and ensure proper subnet configuration.
 - Set up the **Security Group** to allow inbound connections (e.g., from your IP).
 
-5. **Additional Settings:**
+7. **Additional Settings:**
 
+- **Initial Database Name**
+    - **What it is**: The name of the **first database** Amazon RDS will create **inside your DB instance**.
+    - **Purpose**: It's just one of potentially many databases you can create later.
+    - **Example**: If you set this to `my_dev_database`, RDS will create a database called `my_dev_database` when the instance is created.
+    - **Optional**: If left blank, no initial database is created—you can still connect to the instance and create databases manually.
 - Leave default configurations unless specific customization is needed.
 
-6. **Create the Cluster:**
+8. **Create the Cluster:**
 
 - Click on **Create Database** to provision the cluster.
 - Wait until the cluster status becomes **Available**.
