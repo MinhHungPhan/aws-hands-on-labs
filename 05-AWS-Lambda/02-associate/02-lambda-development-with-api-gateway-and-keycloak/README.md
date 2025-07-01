@@ -139,8 +139,6 @@ https://{keycloak-server-url}/realms/{realm-name}/protocol/openid-connect/certs
 
 ## Accessing the Protected Resource
 
-## Accessing the Protected Resource
-
 In this section, we will explain how the API Gateway forwards validated requests to the backend services and how these services respond to the client. 
 
 ### Step 6: Forward Request
