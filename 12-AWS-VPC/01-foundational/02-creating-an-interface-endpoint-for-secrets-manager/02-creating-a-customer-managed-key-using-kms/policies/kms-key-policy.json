@@ -1,0 +1,33 @@
+{
+    "Version": "2012-10-17",
+    "Id": "key-consolepolicy-3",
+    "Statement": [
+        {
+            "Sid": "Enable IAM User Permissions",
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "arn:aws:iam::YOUR-ACCOUNT-ID:root"
+            },
+            "Action": "kms:*",
+            "Resource": "*"
+        },
+        {
+            "Sid": "Allow Lambda Full Access from account YOUR-ACCOUNT-ID",
+            "Effect": "Allow",
+            "Principal": {
+                "AWS": "arn:aws:iam::YOUR-ACCOUNT-ID:role/service-role/your-lambda-role-name"
+            },
+            "Action": "kms:*",
+            "Resource": "*"
+        },
+        {
+            "Sid": "AllowSecretsManagerToUseKey",
+            "Effect": "Allow",
+            "Principal": {
+                "Service": "secretsmanager.amazonaws.com"
+            },
+            "Action": "kms:*",
+            "Resource": "*"
+        }
+    ]
+}
