@@ -248,30 +248,52 @@ Both need to allow access for someone to use your KMS key. It's an AND operation
 
 ## Testing Your KMS Key
 
-Let's make sure our key is working properly! We can do a quick test using the AWS CLI or console.
+Let's make sure our key is working properly! We can do a quick test using the AWS CLI, AWS CloudShell or console.
 
-### Testing via AWS CLI
-
-If you have the AWS CLI installed, here's a quick test:
+### Testing via AWS CloudShell
 
 1. **Encrypt some test data:**
 
+First, let's create a test file with some realistic content:
+
 ```bash
+# Create a test file with secret content
+echo "This is a decrypted secret" > plaintext.txt
+
+# Check the content
+cat plaintext.txt
+```
+
+Now encrypt the file using your KMS key:
+
+```bash
+# Encrypt the file content
 aws kms encrypt \
     --key-id alias/your-key-alias \
-    --plaintext "Hello, this is a test!" \
+    --plaintext fileb://plaintext.txt \
     --output text \
-    --query CiphertextBlob
+    --query CiphertextBlob > encrypted-data.txt
+
+# Check the encrypted content (should be base64-encoded ciphertext)
+cat encrypted-data.txt
 ```
 
 2. **Decrypt the data:**
 
+Now let's decrypt the data using a streamlined one-liner command:
+
 ```bash
+# Decrypt the data in one command using process substitution
 aws kms decrypt \
-    --ciphertext-blob fileb://encrypted-data.txt \
+    --ciphertext-blob fileb://<(base64 -d encrypted-data.txt) \
     --output text \
-    --query Plaintext | base64 --decode
+    --query Plaintext | base64 --decode > decrypted-data.txt
+
+# Check the decrypted content
+cat decrypted-data.txt
 ```
+
+You should see your original message: "This is a decrypted secret"
 
 ### Testing via Console
 
