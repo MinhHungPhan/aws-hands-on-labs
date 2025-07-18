@@ -24,7 +24,9 @@ Amazon VPC Endpoints allow you to privately connect your VPC to AWS services wit
 
 ## What is a Gateway Endpoint?
 
-A Gateway Endpoint is a resource that allows traffic from your VPC to reach AWS services without leaving the Amazon network. It enhances security by bypassing the internet and reducing latency for accessing services like Amazon S3. 
+A Gateway Endpoint is a resource that allows traffic from your VPC to reach AWS services without leaving the Amazon network. It enhances security by bypassing the internet and reducing latency for accessing services like Amazon S3.
+
+![VPC Gateway Endpoint](./images/001-vpce.png)
 
 ### Why Use a Gateway Endpoint?
 
