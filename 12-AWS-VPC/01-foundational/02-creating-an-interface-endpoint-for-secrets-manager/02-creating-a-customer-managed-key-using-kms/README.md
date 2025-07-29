@@ -194,7 +194,7 @@ Once the key is created, you'll see a success message with your key details. **M
 
 - **Key ID**: Something like `1234abcd-12ab-34cd-56ef-1234567890ab`
 - **Key ARN**: `arn:aws:kms:region:account-id:key/key-id`
-- **Alias**: The friendly name you gave it
+- **Alias**: The friendly name you gave it (something like `alias/vpc-tutorial-kms-key`)
 
 You'll need this information for the next tutorials in our series!
 
