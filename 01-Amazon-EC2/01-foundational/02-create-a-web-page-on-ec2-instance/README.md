@@ -2,7 +2,6 @@
 
 ## Table of Contents
 
-- [Lab Details](#lab-details)
 - [Introduction](#introduction)
 - [Lab Details](#lab-details)
 - [Task Details](#task-details)
