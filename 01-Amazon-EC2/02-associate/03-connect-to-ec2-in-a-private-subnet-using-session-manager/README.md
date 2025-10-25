@@ -3,6 +3,7 @@
 ## Table of Contents
 
 - [Introduction](#introduction)
+- [Architecture Overview](#architecture-overview)
 - [How It Works?](#how-it-works)
 - [Setup Instructions](#setup-instructions)
     - [Step 1: Install Required Tools](#step-1-install-required-tools)
@@ -20,6 +21,45 @@
 ## Introduction
 
 Welcome! This guide will walk you through the process of connecting to an EC2 instance in a private subnet using AWS Session Manager. Session Manager is a feature of AWS Systems Manager that allows you to manage your EC2 instances through a browser-based shell or AWS CLI without the need to open inbound ports, manage bastion hosts, or use SSH keys. This approach enhances security, simplifies operations, and improves accessibility.
+
+## Architecture Overview
+
+The diagram below illustrates the complete architecture for connecting to an EC2 instance in a private subnet using AWS Session Manager. This visual representation shows all the key components and their interactions:
+
+![EC2 Session Manager Architecture](./images/01-ssm.png)
+
+### Architecture Components:
+
+**User/Client Side:**
+- User workstation with AWS CLI and Session Manager Plugin installed
+
+**AWS Cloud:**
+- **AWS Systems Manager Service**: Central service for managing EC2 instances
+- **IAM**: Validates permissions for users and EC2 instances
+- **CloudTrail**: Logs all session activities for auditing
+
+**VPC (Virtual Private Cloud):**
+- **Private Subnet**: Contains EC2 instance with no direct internet access
+- **VPC Endpoints (3 required)**:
+  - `com.amazonaws.<region>.ssm` - Primary Systems Manager endpoint
+  - `com.amazonaws.<region>.ssmmessages` - Session data streaming
+  - `com.amazonaws.<region>.ec2messages` - EC2 instance messaging
+- **Security Groups**: 
+  - EC2 SG: Allows outbound HTTPS (443) to VPC endpoint SG
+  - VPC Endpoint SG: Allows inbound HTTPS (443) from EC2 SG
+
+**EC2 Instance Components:**
+- **EC2 Instance**: Running in private subnet
+- **SSM Agent**: Pre-installed background service that communicates with Systems Manager
+- **IAM Role**: `AmazonSSMManagedInstanceCore` policy attached to instance
+
+### Connection Flow:
+
+1. User executes `aws ssm start-session` command
+2. Request routed through Systems Manager service
+3. SSM service routes to appropriate VPC endpoints in target VPC
+4. VPC endpoints forward commands to SSM Agent on EC2
+5. SSM Agent executes commands and returns output through same secure channel
 
 ## How It Works?
 
