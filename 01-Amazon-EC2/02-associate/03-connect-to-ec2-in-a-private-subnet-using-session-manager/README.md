@@ -26,7 +26,7 @@ Welcome! This guide will walk you through the process of connecting to an EC2 in
 
 The diagram below illustrates the complete architecture for connecting to an EC2 instance in a private subnet using AWS Session Manager. This visual representation shows all the key components and their interactions:
 
-![EC2 Session Manager Architecture](./images/01-ssm.png)
+![EC2 Session Manager Architecture](./images/02-ssm.png)
 
 ### Architecture Components:
 
@@ -245,9 +245,9 @@ To ensure your EC2 instance can communicate with AWS Systems Manager without req
 
 3. **Create the Following VPC Endpoints**:
 
-- **com.amazonaws.<region>.ssm**: For Systems Manager.
-- **com.amazonaws.<region>.ssmmessages**: For Systems Manager Session Manager.
-- **com.amazonaws.<region>.ec2messages**: For EC2 messages.
+- **com.amazonaws.`<region>`.ssm**: For Systems Manager.
+- **com.amazonaws.`<region>`.ssmmessages**: For Systems Manager Session Manager.
+- **com.amazonaws.`<region>`.ec2messages**: For EC2 messages.
 
 Replace `<region>` with your AWS region (e.g., `us-east-1`).
 
