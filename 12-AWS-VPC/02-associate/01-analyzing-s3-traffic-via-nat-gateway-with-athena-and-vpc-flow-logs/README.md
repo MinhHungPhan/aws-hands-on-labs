@@ -104,6 +104,118 @@ Amazon Athena is serverless and doesn't store data itself. When you run SQL quer
 
 **Important**: Make sure you're in the correct AWS region where your VPC Flow Logs are stored before proceeding.
 
+### Step 3: Understanding Your Flow Log Structure
+
+Before creating the Athena table, you need to understand how your VPC Flow Logs are organized in S3. This step is crucial for building an accurate table definition.
+
+#### Examine Your S3 Bucket Structure
+
+First, let's explore where your flow logs are stored:
+
+```bash
+# List the top-level structure
+aws s3 ls s3://your-flow-logs-bucket/
+
+# Drill down to see the date-based organization
+aws s3 ls s3://your-flow-logs-bucket/AWSLogs/123456789012/vpcflowlogs/us-east-1/ --recursive | head -20
+```
+
+**Typical S3 path structure:**
+
+```
+s3://my-flow-logs-bucket/
+  └── AWSLogs/
+      └── 123456789012/              # Your AWS Account ID
+          └── vpcflowlogs/
+              └── us-east-1/          # AWS Region
+                  └── 2025/           # Year
+                      └── 11/         # Month
+                          └── 07/     # Day
+                              └── 123456789012_vpcflowlogs_us-east-1_fl-1234abcd_20251107T0000Z_hash.log.gz
+```
+
+#### Download and Examine a Sample Log File
+
+To build the correct table schema, you need to see what fields are actually in your logs:
+
+```bash
+# Download a sample log file
+aws s3 cp s3://your-flow-logs-bucket/AWSLogs/123456789012/vpcflowlogs/us-east-1/2025/11/07/sample.log.gz .
+
+# Decompress and view the first few lines
+gunzip sample.log.gz
+head -5 sample.log
+```
+
+**Example log file header (Transit Gateway format):**
+
+```
+version resource-type account-id tgw-id tgw-attachment-id tgw-src-vpc-account-id tgw-dst-vpc-account-id tgw-src-vpc-id tgw-dst-vpc-id tgw-src-subnet-id tgw-dst-subnet-id tgw-src-eni tgw-dst-eni tgw-src-az-id tgw-dst-az-id tgw-pair-attachment-id srcaddr dstaddr srcport dstport protocol packets bytes start end log-status type packets-lost-no-route packets-lost-blackhole packets-lost-mtu-exceeded packets-lost-ttl-expired tcp-flags region flow-direction pkt-src-aws-service pkt-dst-aws-service
+```
+
+**Example data line:**
+
+```
+5 TransitGatewayAttachment 123456789012 tgw-0abc123 tgw-attach-0xyz789 123456789012 123456789012 vpc-0abc123 vpc-0def456 subnet-0abc123 subnet-0def456 eni-0abc123 eni-0def456 use1-az1 use1-az2 - 10.0.1.50 52.218.196.0 54321 443 6 150 12500 1699315200 1699315260 OK IPv4 0 0 0 0 2 us-east-1 egress - S3
+```
+
+#### Map Fields to SQL Data Types
+
+Understanding the data types is essential for accurate querying:
+
+| Field Name | Sample Value | SQL Type | Reasoning |
+|------------|--------------|----------|-----------|
+| `version` | `5` | `int` | Flow log format version |
+| `resource_type` | `TransitGatewayAttachment` | `string` | Text identifier |
+| `account_id` | `123456789012` | `string` | Keep as string (may have leading zeros) |
+| `srcaddr` | `10.0.1.50` | `string` | IP addresses are text |
+| `srcport` | `54321` | `int` | Port numbers are integers |
+| `bytes` | `12500` | `bigint` | Can be very large values |
+| `start` | `1699315200` | `bigint` | Unix timestamps |
+| `end` | `1699315260` | `bigint` | Reserved keyword - needs backticks |
+| `pkt_dst_aws_service` | `S3` | `string` | Service name (S3, DYNAMODB, etc.) |
+
+**Important Notes:**
+- Use `string` for IDs and IP addresses (even if they look numeric)
+- Use `bigint` for byte counts and timestamps (they can exceed `int` range)
+- Use backticks for reserved SQL keywords like `end`
+- Fields with hyphens in the log are converted to underscores in SQL (e.g., `resource-type` → `resource_type`)
+
+#### Alternative: Use AWS Glue Crawler (Automated Approach)
+
+If you prefer AWS to automatically detect your schema, you can use a Glue Crawler:
+
+```bash
+# Create a Glue Crawler
+aws glue create-crawler \
+  --name vpc-flow-logs-crawler \
+  --role AWSGlueServiceRole-FlowLogs \
+  --database-name vpc_logs_db \
+  --targets "S3Targets=[{Path=s3://your-flow-logs-bucket/AWSLogs/}]"
+
+# Run the crawler
+aws glue start-crawler --name vpc-flow-logs-crawler
+
+# Check status
+aws glue get-crawler --name vpc-flow-logs-crawler
+```
+
+The Glue Crawler will:
+- ✅ Automatically detect field names and data types
+- ✅ Create the table in Athena
+- ✅ Identify existing partitions
+- ⚠️ May require manual optimization for partition projection
+
+**When to use Glue Crawler:**
+- First time working with VPC Flow Logs
+- Unsure about the exact schema
+- Want quick setup without manual configuration
+
+**When to manually create the table:**
+- Need partition projection for better performance
+- Want full control over data types
+- Working with custom log formats
+
 ## Creating the Athena Table
 
 Now comes the technical part—creating an external table that points to our VPC Flow Logs. This table structure is specifically designed to capture Transit Gateway flow log data.
@@ -163,6 +275,176 @@ TBLPROPERTIES (
 **Important**: Replace `your-flow-logs-bucket` and `path-to-logs` with your actual S3 bucket and path information.
 
 The partition projection feature is quite clever here—it automatically handles date-based partitioning without requiring manual partition management. This means Athena can efficiently query data across different days without scanning unnecessary files.
+
+### Validating Your Table Setup
+
+After creating the table, it's essential to validate that everything is working correctly. Here's how to test your setup:
+
+#### Test 1: Basic Table Query
+
+Start with a simple query to verify Athena can read your data:
+
+```sql
+-- Retrieve the first 10 records
+SELECT * 
+FROM vpc_flow_logs_tgw_attachment_outbound 
+LIMIT 10;
+```
+
+**What to look for:**
+- ✅ Query completes successfully
+- ✅ Data appears with proper column values
+- ❌ If you get "HIVE_CANNOT_OPEN_SPLIT" error, check your S3 path
+- ❌ If columns are NULL, verify your field delimiter matches the log format
+
+#### Test 2: Verify Partition Projection
+
+Check if partition projection is working correctly:
+
+```sql
+-- Count records for a specific date
+SELECT COUNT(*) as record_count
+FROM vpc_flow_logs_tgw_attachment_outbound 
+WHERE day = '2025/11/07';
+```
+
+**Expected behavior:**
+- Query should complete in seconds (not minutes)
+- If it's slow, partition projection may not be working
+- Check that your `storage.location.template` matches your actual S3 structure
+
+#### Test 3: Validate S3 Traffic Detection
+
+Verify that you can identify S3 traffic:
+
+```sql
+-- Check what AWS services are in your logs
+SELECT pkt_dst_aws_service, 
+       COUNT(*) as request_count,
+       ROUND(SUM(bytes / 1073741824.0), 2) as total_gb
+FROM vpc_flow_logs_tgw_attachment_outbound
+WHERE pkt_dst_aws_service IS NOT NULL
+GROUP BY pkt_dst_aws_service
+ORDER BY total_gb DESC;
+```
+
+**What you should see:**
+- S3 should appear in the results (if you have S3 traffic)
+- Other services like DYNAMODB, EC2, etc., may also appear
+- Byte counts should be reasonable (not zeros or extremely large values)
+
+### Troubleshooting Table Creation Issues
+
+#### Problem: "HIVE_CANNOT_OPEN_SPLIT" Error
+
+**Cause:** S3 path in the `LOCATION` or `storage.location.template` doesn't match your actual structure.
+
+**Solution:**
+
+```sql
+-- Verify your S3 path structure
+-- Run this in your terminal:
+aws s3 ls s3://your-flow-logs-bucket/ --recursive | grep 2025/11/07 | head -5
+
+-- Compare with your storage.location.template
+-- It should match: s3://bucket/path/${day}
+-- where ${day} is replaced with 2025/11/07
+```
+
+#### Problem: All Fields Return NULL
+
+**Cause:** Field delimiter mismatch or incorrect schema.
+
+**Solution:**
+
+```sql
+-- Drop and recreate the table with correct delimiter
+DROP TABLE vpc_flow_logs_tgw_attachment_outbound;
+
+-- VPC Flow Logs use space delimiter
+-- Make sure you have: FIELDS TERMINATED BY ' '
+-- NOT: FIELDS TERMINATED BY ','
+```
+
+#### Problem: Query Returns No Data
+
+**Cause:** Date range in partition projection doesn't include your data.
+
+**Solution:**
+
+```sql
+-- Check what dates actually exist in your S3 bucket
+-- In terminal:
+aws s3 ls s3://your-flow-logs-bucket/path-to-logs/ --recursive | grep "\.log" | head -20
+
+-- Update your table properties with correct date range
+ALTER TABLE vpc_flow_logs_tgw_attachment_outbound 
+SET TBLPROPERTIES (
+    "projection.day.range" = "2025/01/01,NOW"
+);
+```
+
+#### Problem: "Access Denied" Error
+
+**Cause:** Athena doesn't have permission to read your S3 bucket.
+
+**Solution:**
+
+```json
+// Add this policy to your Athena execution role:
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "s3:GetObject",
+                "s3:ListBucket"
+            ],
+            "Resource": [
+                "arn:aws:s3:::your-flow-logs-bucket",
+                "arn:aws:s3:::your-flow-logs-bucket/*"
+            ]
+        }
+    ]
+}
+```
+
+### Understanding Your Table Properties
+
+Let's break down what each table property does:
+
+```sql
+TBLPROPERTIES (
+    -- Skip the header line in each log file
+    "skip.header.line.count" = "1",
+    
+    -- Enable automatic partition discovery
+    "projection.enabled" = "true",
+    
+    -- Define partition as date type
+    "projection.day.type" = "date",
+    
+    -- Date range: from start date to NOW (current date)
+    "projection.day.range" = "2025/01/01,NOW",
+    
+    -- Date format matching your S3 structure
+    "projection.day.format" = "yyyy/MM/dd",
+    
+    -- Template for S3 path with partition variable
+    "storage.location.template" = "s3://your-bucket/path/${day}"
+);
+```
+
+**Why partition projection matters:**
+- ❌ Without it: Athena scans ALL files in your bucket (slow + expensive)
+- ✅ With it: Athena only scans files in the specified date range (fast + cheap)
+
+**Example cost difference:**
+- Scanning 1 TB of data: ~$5.00
+- Scanning 10 GB with partition projection: ~$0.05
+
+That's a 100x cost reduction for date-filtered queries!
 
 ## Analyzing S3 Traffic Patterns
 
