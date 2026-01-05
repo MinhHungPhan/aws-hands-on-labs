@@ -39,7 +39,7 @@ Alright, let's roll up our sleeves and get this endpoint created! It's actually 
 1. **Log into AWS Management Console** and head over to **VPC > Endpoints**.
 2. Click that big **Create Endpoint** button.
 3. For service category, choose **AWS services** (the default option).
-4. Here's where it gets specific - in the service name search box, type "secrets" and select **com.amazonaws.<region>.secretsmanager** (where `<region>` is your AWS region, like `us-east-1`).
+4. Here's where it gets specific - in the service name search box, type "secrets" and select `com.amazonaws.<region>.secretsmanager` (where `<region>` is your AWS region, like `us-east-1`).
 5. Select the **VPC** where your applications need to access Secrets Manager.
 6. For subnets, I recommend selecting only **private subnets** where your applications run. No need to expose this in public subnets!
 7. Now for security groups - this controls what can access your endpoint:
@@ -68,7 +68,7 @@ Alright, let's roll up our sleeves and get this endpoint created! It's actually 
    - **Port Range**: All.
    - **Destination**: 0.0.0.0/0 (or restrict to specific destinations if needed).
 
-8. **Enable Private DNS** - this is a crucial checkbox! When enabled, the standard Secrets Manager endpoint URL (<vpc-endpoint-id>.secretsmanager.<region>.vpce.amazonaws.com) will resolve to your private endpoint. Without this, you'd need to update your application code to use a different endpoint URL.
+8. **Enable Private DNS** - this is a crucial checkbox! When enabled, the standard Secrets Manager endpoint URL (`<vpc-endpoint-id>.secretsmanager.<region>.vpce.amazonaws.com`) will resolve to your private endpoint. Without this, you'd need to update your application code to use a different endpoint URL.
 
 9. If you have any **Private Hosted Zones** in Route 53 that overlap with Secrets Manager domains, make sure they're properly associated with your VPC for seamless DNS resolution.
 
