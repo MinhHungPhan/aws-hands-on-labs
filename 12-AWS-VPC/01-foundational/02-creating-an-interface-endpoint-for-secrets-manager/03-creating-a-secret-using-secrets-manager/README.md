@@ -354,6 +354,7 @@ For now, just remember that this capability exists - it's one of the major advan
 One of the best things about Secrets Manager is how well it integrates with other AWS services:
 
 ### Lambda Functions
+
 ```python
 import boto3
 import json
